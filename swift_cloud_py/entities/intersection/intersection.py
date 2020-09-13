@@ -2,8 +2,8 @@ from __future__ import annotations  # allows using intersection-typing inside in
 import json
 from typing import List, Union
 
-from entities.intersection.sg_relations import Conflict, SyncStart, Coordination, PreStart
-from entities.intersection.signalgroup import SignalGroup
+from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Coordination, PreStart
+from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 
 
 class Intersection:

@@ -1,18 +1,21 @@
+import logging
+import os
 from typing import Tuple
 
 import requests
 from requests import Response
 
-from authentication.authentication import authenticate
-from authentication.authentication_errors import UnkownCloudException, UnauthorizedException, BadRequestException
-from authentication.check_internet_connection import ensure_has_internet
-from entities.control_output.fixed_time_schedule import FixedTimeSchedule
-from entities.control_output.phase_diagram import PhaseDiagram
-from entities.intersection.intersection import Intersection
-from entities.scenario.arrival_rates import ArrivalRates
-from enums import ObjectiveEnum
+from swift_cloud_py.authentication.authentication import authenticate
+from swift_cloud_py.authentication.authentication_errors import UnkownCloudException, UnauthorizedException, BadRequestException
+from swift_cloud_py.authentication.check_internet_connection import ensure_has_internet
+from swift_cloud_py.entities.control_output.fixed_time_schedule import FixedTimeSchedule
+from swift_cloud_py.entities.control_output.phase_diagram import PhaseDiagram
+from swift_cloud_py.entities.intersection.intersection import Intersection
+from swift_cloud_py.entities.scenario.arrival_rates import ArrivalRates
+from swift_cloud_py.enums import ObjectiveEnum
 
-CLOUD_API_URL = "https://desktop-test-api.swiftmobility.eu" # TODO: change
+# allows using a test version of the api hosted at a different url (for testing purposes).
+CLOUD_API_URL = os.environ.get("smc_api_url", "https://cloud-api.swiftmobility.eu")
 
 
 def check_status_code(response: Response) -> None:
@@ -93,7 +96,9 @@ class SwiftMobilityCloudApi:
                 version=version,  # TODO: remove
                 request_id=request_id  # TODO: remove
             )
+            logging.info(f"calling endpoint {endpoint}")
             r = requests.post(endpoint, json=json_dict, headers=headers)
+            logging.info(f"finished calling endpoint {endpoint}")
         except requests.exceptions.ConnectionError:
             raise UnkownCloudException("Connection with swift mobility cloud api could not be established")
 
@@ -129,7 +134,9 @@ class SwiftMobilityCloudApi:
                 greenyellow_intervals=fixed_time_schedule.to_json()["greenyellow_intervals"],
                 period=fixed_time_schedule.to_json()["period"]
             )
+            logging.info(f"calling endpoint {endpoint}")
             r = requests.post(endpoint, json=json_dict, headers=headers)
+            logging.info(f"finished calling endpoint {endpoint}")
         except requests.exceptions.ConnectionError:
             raise UnkownCloudException("Connection with swift mobility cloud api could not be established")
 
@@ -140,8 +147,3 @@ class SwiftMobilityCloudApi:
         # parse output
         phase_diagram = PhaseDiagram.from_json(output["phase_diagram"])
         return phase_diagram
-
-
-if __name__ == "__main__":
-    from examples.load_from_smd_export import run_load_from_smd_example
-    run_load_from_smd_example()

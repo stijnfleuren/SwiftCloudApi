@@ -15,11 +15,11 @@ $ pip install swift_cloud_py
 ```
 ## Getting the code
 
-The code is hosted at https://github.com/stijnfleuren/swift_cloud_api
+The code is hosted at https://github.com/stijnfleuren/SwiftCloudApi
 
 Check out the latest development version anonymously with:
 
-    $ git clone git://github.com/stijnfleuren/swift_cloud_api.git
+    $ git clone git://github.com/stijnfleuren/SwiftCloudApi.git
     $ cd swift_cloud_api
 
 To install dependencies using pip, run:

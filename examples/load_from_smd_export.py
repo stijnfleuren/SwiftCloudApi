@@ -1,9 +1,9 @@
 import json
 import os
 
-from api import SwiftMobilityCloudApi
-from entities.intersection.intersection import Intersection
-from entities.scenario.arrival_rates import ArrivalRates
+from swift_cloud_py.swift_cloud_api import SwiftMobilityCloudApi
+from swift_cloud_py.entities.intersection.intersection import Intersection
+from swift_cloud_py.entities.scenario.arrival_rates import ArrivalRates
 
 
 def run_load_from_smd_example():

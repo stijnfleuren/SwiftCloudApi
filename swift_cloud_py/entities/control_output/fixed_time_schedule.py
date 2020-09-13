@@ -2,7 +2,7 @@ from __future__ import annotations  # allows using a class as typing inside the 
 
 from typing import Dict, List
 
-from entities.intersection.signalgroup import SignalGroup
+from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 
 
 class FixedTimeSchedule:

@@ -3,7 +3,7 @@ from __future__ import annotations  # allows using SignalGroup-typing inside Sig
 from copy import deepcopy
 from typing import List, Dict
 
-from entities.intersection.traffic_light import TrafficLight
+from swift_cloud_py.entities.intersection.traffic_light import TrafficLight
 
 
 class SignalGroup:

@@ -1,12 +1,13 @@
+import logging
 from collections import Callable
 from time import time
 
 import requests
 
-from authentication.authentication_errors import UnauthorizedException, UnkownCloudException, \
+from swift_cloud_py.authentication.authentication_errors import UnauthorizedException, UnkownCloudException, \
     NoInternetConnectionException, BadRequestException
-from authentication.check_internet_connection import has_internet_connection
-from authentication.credentials import Credentials
+from swift_cloud_py.authentication.check_internet_connection import has_internet_connection
+from swift_cloud_py.authentication.credentials import Credentials
 
 
 AUTHENTICATION_URL = "https://authentication.swiftmobility.eu/authenticate"
@@ -47,6 +48,7 @@ class Authentication:
                               json={"accessKey": cls._credentials.access_key,
                                     "secretAccessKey": cls._credentials.secret_access_key,
                                     "accountType": "trial"})  # TODO: introduce new CloudAPIAccount
+            logging.info("authentication token updated")
         except requests.exceptions.ConnectionError:  # no connection could be established
             if has_internet_connection():
                 raise UnkownCloudException

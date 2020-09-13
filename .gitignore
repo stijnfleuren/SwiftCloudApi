@@ -3,6 +3,11 @@
 # Learn more about .gitignore:
 #     https://www.atlassian.com/git/tutorials/saving-changes/gitignore
 
+#pypi related files and folders
+build/
+dist/
+swift_mobility_cloud_api_interface_stijnfleuren.egg-info/
+
 # environment variables
 .env
 
