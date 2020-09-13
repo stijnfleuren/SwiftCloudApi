@@ -71,16 +71,12 @@ class SwiftMobilityCloudApi:
         (minimized delay, minimized period, or maximum percentual increase in traffic divided by 100, e.g. 1 means
         currently at the verge of stability)
         """
-        # TODO: introduce horizon parameter and QueueLength parameter and update doc-string
+        # TODO: introduce horizon parameter and queue_lengths parameter and update doc-string
         for signalgroup in intersection.signalgroups:
             assert signalgroup.id in arrival_rates.id_to_arrival_rates, \
                 f"arrival rate(s) must be specified for signalgroup {signalgroup.id}"
             assert len(arrival_rates.id_to_arrival_rates[signalgroup.id]) == len(signalgroup.traffic_lights), \
                 f"arrival rate(s) must be specified for all traffic lights of signalgroup {signalgroup.id}"
-
-        # TEMP TODO: remove
-        request_id = "123-456"
-        version = "0.7.0.alpha"
 
         endpoint = f"{CLOUD_API_URL}/fts-optimization"
         headers = {'authorization': 'Bearer {0:s}'.format(cls._authentication_token)}
@@ -92,9 +88,7 @@ class SwiftMobilityCloudApi:
                 arrival_rates=arrival_rates.to_json(),
                 min_period_duration=min_period_duration,
                 max_period_duration=max_period_duration,
-                objective=objective.value,
-                version=version,  # TODO: remove
-                request_id=request_id  # TODO: remove
+                objective=objective.value
             )
             logging.info(f"calling endpoint {endpoint}")
             r = requests.post(endpoint, json=json_dict, headers=headers)
