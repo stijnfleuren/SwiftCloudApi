@@ -1,14 +1,15 @@
 from __future__ import annotations  # allows using intersection-typing inside intersection-class
 import json
-from typing import List, Union
+from typing import List, Union, Optional, Dict
 
 from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Coordination, PreStart
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 
 
 class Intersection:
-    def __init__(self, signalgroups: List[SignalGroup], conflicts: List[Conflict], sync_starts: List[SyncStart],
-                 coordinations: List[Coordination], prestarts: List[PreStart]) -> None:
+    def __init__(self, signalgroups: List[SignalGroup], conflicts: List[Conflict],
+                 sync_starts: Optional[List[SyncStart]] = None, coordinations: Optional[List[Coordination]] = None,
+                 prestarts: Optional[List[PreStart]] = None) -> None:
         """
         intersection object containing information depending on intersection geometry and traffic light control
         strategy (e.g., sync starts etc.);
@@ -24,9 +25,9 @@ class Intersection:
         """
         self.signalgroups = signalgroups
         self.conflicts = conflicts
-        self.sync_starts = sync_starts
-        self.coordinations = coordinations
-        self.prestarts = prestarts
+        self.sync_starts = sync_starts if sync_starts else []
+        self.coordinations = coordinations if coordinations else []
+        self.prestarts = prestarts if prestarts else []
         self.validate()
 
     @property

@@ -8,7 +8,7 @@ from swift_cloud_py.entities.intersection.traffic_light import TrafficLight
 
 class SignalGroup:
     def __init__(self, id: str, traffic_lights: List[TrafficLight], min_greenyellow: float, max_greenyellow: float,
-                 min_red: float,  max_red: float, min_nr: int, max_nr: int) -> None:
+                 min_red: float,  max_red: float, min_nr: int = 1, max_nr: int = 1) -> None:
         """
         Representation of signal group, which is a group of traffic lights with the same state (green, yellow, red))
         :param id: name of the signal group
