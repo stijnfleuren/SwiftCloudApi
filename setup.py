@@ -4,8 +4,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="swift-mobility-cloud-api-interface-stijnfleuren",  # Replace with your own username
-    version="0.0.7",
+    name="swift-cloud-api",  # Replace with your own username
+    version="0.0.1",
     author="S.T.G. Fleuren",
     author_email="stijn.fleuren@swiftmobility.eu",
     description="Swift Mobility Cloud API Interface",
