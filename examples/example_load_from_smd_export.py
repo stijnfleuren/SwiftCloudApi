@@ -1,12 +1,13 @@
 import json
 import os
 
+from swift_cloud_py.enums import ObjectiveEnum
 from swift_cloud_py.swift_cloud_api import SwiftMobilityCloudApi
 from swift_cloud_py.entities.intersection.intersection import Intersection
 from swift_cloud_py.entities.scenario.arrival_rates import ArrivalRates
 
 
-def run_load_from_smd_example():
+def load_from_smd_and_run():
     """
     Example showing how to:
     - retrieve intersection information and arrival rates from a json file exported from Swift Mobility Export.
@@ -32,11 +33,11 @@ def run_load_from_smd_example():
     intersection = Intersection.from_json(intersection_dict=json_dict["intersection"])
     arrival_rates = ArrivalRates.from_json(arrival_rates_dict=json_dict["arrival_rates"])
 
-    # TODO: actually invoke the optimization
+    # we are optimizing for a large intersection; it could take a while before it is finished
     fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
-        intersection=intersection, arrival_rates=arrival_rates)
-    # TODO: nice formatting of fixed-time-schedule and phase-diagram?
-    print("objective value", objective_value)
+        intersection=intersection, arrival_rates=arrival_rates, objective=ObjectiveEnum.max_capacity)
+
+    print("maximum sustainable increase (scaling factor) in traffic", objective_value)
     print(fixed_time_schedule)
     print(phase_diagram)
 
@@ -48,4 +49,4 @@ def run_load_from_smd_example():
 
 
 if __name__ == "__main__":
-    run_load_from_smd_example()
+    load_from_smd_and_run()
