@@ -24,11 +24,11 @@ Check out the latest development version anonymously with:
 
 To install dependencies using pip, run:
 
-    $ pip install -Ur requirements.txt
+    $ python -m pip install -Ur requirements.txt
     
 To install dependencies using pipenv, run:
 
-    $ pipenv install
+    $ python -m pipenv install
 
 ## Getting started
 
@@ -40,6 +40,100 @@ To this end, set the following two environment variables:
 
 If you do not yet have these credentials, you can send a mail to cloud_api@swiftmobility.eu.
 
+### How to load an intersection
+Intersections and arrival rates can be loaded from a json file exported from Swift Mobility Desktop:
+
+```python
+import json
+with open(smd_json_export, "r") as f:
+    json_dict = json.load(f)
+
+intersection = Intersection.from_json(intersection_dict=json_dict["intersection"])
+arrival_rates = ArrivalRates.from_json(arrival_rates_dict=json_dict["arrival_rates"])
+```
+
+### How to create an intersection
+#### Traffic light
+Creating traffic lights:
+```python
+traffic_light = TrafficLight(capacity=1800, lost_time=2.2)
+```
+#### Signalgroups
+Creating signalgroup:
+```python
+signalgroup =  SignalGroup(id="2", traffic_lights=[traffic_light1, traffic_light2], 
+                           min_greenyellow=5, max_greenyellow=100, 
+                           min_red=10, max_red=100, min_nr=1, max_nr=2)
+```
+#### Relations between signalgroups
+We can create traffic light control restrictions between signalgroups. 
+
+A conflict prevents two conflicting traffic streams from simultaneously crossing the intersection.
+```python
+conflict12 = Conflict(id1=signalgroup1.id, id2=signalgroup2.id, setup12=2, setup21=3)
+```
+A synchronous start ensures that two greenyellow intervals start at the same time; this can be used to create awareness
+of partial conflicts (e.g., two opposing left movements when driving on the right-hand side of the road)
+```python
+sync_start = SyncStart(from_id=signalgroup1.id, to_id=signalgroup2.id)
+```
+A prestart start can be used to create awareness of a partial conflict, e.g., to let turning traffic know that cyclists or pedestrians may cross the intersection.
+```python
+prestart = PreStart(from_id=signalgroup1.id, to_id=signalgroup2.id, min_prestart=2, max_prestart=10)
+```
+A coordination can be used to coordinate the start of two greenyellow intervals, which is useful to create green waves.
+```python
+coordination = Coordination(from_id=signalgroup1.id, to_id=signalgroup2.id, coordination_time=5)
+```
+#### Intersections
+Creating an intersection with all relevant traffic light control restrictions:
+```python
+intersection = Intersection(signalgroups=[signalgroup1, signalgroup2, signalgroup3],
+                            conflicts=[conflict12, conflict13, conflict23])
+```
+Note: to optimize a fixed-time controller for two intersections with one controller, then this has to be 'modelled' as one intersection; the signalgroups (and conflicts etc.) of both intersections have to be provided to this Intersection object.
+
+#### Arrival scenarios
+Create an arrival scenario (arrival rates):
+```python
+morning_rates = ArrivalRates(id_to_arrival_rates={"2": [800, 700], "5": [300], "8": [350]})
+```
+
+### Storing and restoring intersections etc.
+You can convert intersections and other objects to json; this is convenient to locally store this information
+```python
+json_serializable = intersection.to_json()
+```
+You can later restore this same object:
+```python
+intersection = Intersection.from_json(json_serializable)
+```
+
+### Optimizing fixed-time schedules
+Optimize a fixed-time schedule for an intersection and a certain arrival rates:
+```python
+fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
+        intersection=intersection, arrival_rates=morning_rates, objective=ObjectiveEnum.max_capacity)
+```
+We allow for several objectives:
+* **ObjectiveEnum.min_delay**: Search for the fixed-time schedule that minimizes the expected (average) delay experienced by road users.
+* **ObjectiveEnum.max_capacity**: Search for the fixed-time schedule that maximizes the largest increase in traffic (scaling factor) that the intersection can handle without becoming unstable/oversaturated. This gives an indication of how close to oversaturation the intersection is; a objective value of < 1 indicates that the intersection is oversaturated for all possible fixed-time schedules.
+* **ObjectiveEnum.min_period**: Search for the fixed-time schedule that has the smallest period duration (while still being stable).
+
+You can print the fixed-time schedule in pretty format:
+```python
+print(fixed_time_schedule)
+```
+### computing phase diagram
+When optimizing a fixed-time schedule, also the associated phase diagram is returned. However, you can also compute the phase diagram of any other fixed-time schedule:
+```python
+phase_diagram = SwiftMobilityCloudApi.get_phase_diagram(
+    intersection=intersection, fixed_time_schedule=fixed_time_schedule)
+```
+The phase diagram can be printed in pretty format:
+```python
+print(phase_diagram)
+```
 ### Examples
 In the folder \examples you can find several examples to get you started.
 
