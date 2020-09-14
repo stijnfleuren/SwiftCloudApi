@@ -47,7 +47,7 @@ class Authentication:
             r = requests.post(url=AUTHENTICATION_URL,
                               json={"accessKey": cls._credentials.access_key,
                                     "secretAccessKey": cls._credentials.secret_access_key,
-                                    "accountType": "trial"})  # TODO: introduce new CloudAPIAccount
+                                    "accountType": "cloud-api"})
             logging.info("authentication token updated")
         except requests.exceptions.ConnectionError:  # no connection could be established
             if has_internet_connection():
