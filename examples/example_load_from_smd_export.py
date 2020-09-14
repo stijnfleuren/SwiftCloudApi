@@ -33,9 +33,9 @@ def load_from_smd_and_run():
     intersection = Intersection.from_json(intersection_dict=json_dict["intersection"])
     arrival_rates = ArrivalRates.from_json(arrival_rates_dict=json_dict["arrival_rates"])
 
-    # we are optimizing for a large intersection; it could take a while before it is finished
     fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
-        intersection=intersection, arrival_rates=arrival_rates, objective=ObjectiveEnum.max_capacity)
+        intersection=intersection, arrival_rates=arrival_rates, min_period_duration=30, max_period_duration=180,
+        objective=ObjectiveEnum.max_capacity)
 
     print("maximum sustainable increase (scaling factor) in traffic", objective_value)
     print(fixed_time_schedule)
