@@ -2,6 +2,11 @@ from __future__ import annotations  # allows using a class as typing inside the 
 from typing import List
 
 
+def sort_by_name(name: str):
+    """ function needed to sort signalgroups by name """
+    return len(name), name
+
+
 class GreenYellowPhase:
     def __init__(self, signalgroup_id: str, interval_index: int) -> None:
         """
@@ -43,7 +48,10 @@ class Phase:
     def __str__(self) -> str:
         """string representation of object"""
         string = "["
-        for index, greenyellow_phase in enumerate(self.greenyellow_phases):
+        # visualize in sorted (by name) order
+        greenyellow_phases = sorted(self.greenyellow_phases,
+                                    key=lambda greenyellow_phase: sort_by_name(greenyellow_phase.signalgroup_id))
+        for index, greenyellow_phase in enumerate(greenyellow_phases):
             if index > 0:
                 string += ", "
             string += str(greenyellow_phase)
@@ -69,5 +77,5 @@ class PhaseDiagram:
         string = f"phase diagram:"
         for phase in self.phases:
             string += "\n"
-            string += f"\t{str(phase)}:"
+            string += f"\t{str(phase)}"
         return string

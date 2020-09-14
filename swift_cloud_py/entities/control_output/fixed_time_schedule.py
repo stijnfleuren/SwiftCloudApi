@@ -5,6 +5,11 @@ from typing import Dict, List
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 
 
+def sort_by_name(name: str):
+    """ function needed to sort signalgroups by name """
+    return len(name), name
+
+
 class FixedTimeSchedule:
     """
     Periodically repeating schedule specifying when signalgroups have a greenyellow interval.
@@ -52,7 +57,11 @@ class FixedTimeSchedule:
         string += f"\tperiod: {self.period}\n"
         string += f"\tgreenyellow intervals:"
         max_name = max(len(sg_id) for sg_id in self.greenyellow_intervals)
-        for sg_id, greenyellow_intervals in self.greenyellow_intervals.items():
+
+        # sort by name
+        greenyellow_interval_tuples = sorted(self.greenyellow_intervals.items(),
+                                             key=lambda item: sort_by_name(item[0]))
+        for sg_id, greenyellow_intervals in greenyellow_interval_tuples:
             string += "\n"
             # signalgroup name followed by semicolon, left aligned with width of max_name + 2
             string += f"\t\t{sg_id + ':':<{max_name + 2}}"
