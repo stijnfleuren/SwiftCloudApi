@@ -36,7 +36,12 @@ class TrafficLight:
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
         # dict creates copy preventing modifying original object
-        return dict(self.__dict__)
+        json_dict = dict(self.__dict__)
+        # moreover we remove items with None value; the max saturation should not be specified in the cloud-api
+        #  if it is None
+        if self.max_saturation is None:
+            del json_dict["max_saturation"]
+        return json_dict
 
     @staticmethod
     def from_json(traffic_light_dict: Dict) -> TrafficLight:
@@ -44,4 +49,5 @@ class TrafficLight:
         return TrafficLight(capacity=traffic_light_dict["capacity"],
                             lost_time=traffic_light_dict["lost_time"],
                             weight=traffic_light_dict["weight"],
-                            max_saturation=traffic_light_dict["max_saturation"])
+                            max_saturation=traffic_light_dict["max_saturation"]
+                            if "max_saturation" in traffic_light_dict else None)
