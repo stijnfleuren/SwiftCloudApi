@@ -43,3 +43,10 @@ class ArrivalRates:
             {id_: [rate + other_rate for rate, other_rate in zip(rates, other_id_to_arrival_rates[id_])]
              for id_, rates in self.id_to_arrival_rates.items()}
         return ArrivalRates(id_to_arrival_rates=id_to_arrival_rates)
+
+    def __mul__(self, factor: float):
+        """ Multiply the arrival rates with a factor """
+        assert isinstance(factor, (float, int)), "can only multiply ArrivalRates object with a float"
+        id_to_arrival_rates = \
+            {id_: [rate * factor for rate in rates] for id_, rates in self.id_to_arrival_rates.items()}
+        return ArrivalRates(id_to_arrival_rates=id_to_arrival_rates)

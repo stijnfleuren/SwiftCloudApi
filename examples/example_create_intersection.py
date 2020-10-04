@@ -17,7 +17,7 @@ def create_intersection_and_optimize():
     - create traffic lights, signalgroups and intersections, ...
     - optimize a fixed-time schedule for this intersection
 
-    Note important:
+    NOTE:
     To run the example below you need credentials to invoke the swift mobility cloud api.
     To this end, you need to specify the following environment variables:
     - smc_api_key: the access key of your swift mobility cloud api account
@@ -59,6 +59,8 @@ def create_intersection_and_optimize():
     logging.info("Average experienced delay", objective_value)
     logging.info(fixed_time_schedule)
     logging.info(phase_diagram)
+
+    logging.info("Average experienced delay", objective_value)
 
     # the following code indicates how to compute a phase diagram from a fixed-time schedule (note that now it makes
     #  no sense to do so as it was already computed above)

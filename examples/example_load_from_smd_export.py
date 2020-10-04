@@ -14,7 +14,7 @@ def load_from_smd_and_run():
     - retrieve intersection information and arrival rates from a json file exported from Swift Mobility Desktop.
     - use this information to optimize fixed-time schedules
     
-    Note important:
+    NOTE:
     To run the example below you need credentials to invoke the swift mobility cloud api.
     To this end, you need to specify the following environment variables:
     - smc_api_key: the access key of your swift mobility cloud api account
@@ -31,6 +31,7 @@ def load_from_smd_and_run():
     with open(smd_export, "r") as f:
         json_dict = json.load(f)
 
+    logging.info(f"Loading intersection and traffic situation from disk")
     intersection = Intersection.from_json(intersection_dict=json_dict["intersection"])
     arrival_rates = ArrivalRates.from_json(arrival_rates_dict=json_dict["arrival_rates"])
 
