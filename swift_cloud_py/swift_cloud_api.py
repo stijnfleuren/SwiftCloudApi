@@ -39,7 +39,7 @@ def check_status_code(response: Response) -> None:
     elif response.status_code in [504]:
         raise TimeoutError
     elif response.status_code != 200:
-        raise UnknownCloudException
+        raise UnknownCloudException(f"Unkown status code (={response.status_code}) returned")
 
 
 class SwiftMobilityCloudApi:
