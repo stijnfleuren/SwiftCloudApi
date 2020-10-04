@@ -34,3 +34,12 @@ class ArrivalRates:
             json_dict = json.load(f)
 
         return ArrivalRates.from_json(arrival_rates_dict=json_dict["arrival_rates"])
+
+    def __add__(self, other: ArrivalRates):
+        """ add two arrival rates """
+        assert isinstance(other, ArrivalRates), "can only add ArrivalRates object to ArrivalRates"
+        other_id_to_arrival_rates = other.id_to_arrival_rates
+        id_to_arrival_rates = \
+            {id_: [rate + other_rate for rate, other_rate in zip(rates, other_id_to_arrival_rates[id_])]
+             for id_, rates in self.id_to_arrival_rates.items()}
+        return ArrivalRates(id_to_arrival_rates=id_to_arrival_rates)
