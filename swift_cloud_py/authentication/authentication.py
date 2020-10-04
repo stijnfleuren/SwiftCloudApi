@@ -4,7 +4,7 @@ from time import time
 
 import requests
 
-from swift_cloud_py.authentication.authentication_errors import UnauthorizedException, UnkownCloudException, \
+from swift_cloud_py.common.errors import UnauthorizedException, UnknownAuthenticationException, \
     NoInternetConnectionException, BadRequestException
 from swift_cloud_py.authentication.check_internet_connection import has_internet_connection
 from swift_cloud_py.authentication.credentials import Credentials
@@ -53,7 +53,7 @@ class Authentication:
         except requests.exceptions.ConnectionError:  # no connection could be established
             if has_internet_connection():
                 logging.debug("updating authentication token failed: unkown exception")
-                raise UnkownCloudException
+                raise UnknownAuthenticationException
             else:
                 logging.debug("updating authentication token failed: no internet!")
                 raise NoInternetConnectionException
@@ -73,7 +73,7 @@ class Authentication:
                 # 500: server error
                 raise BadRequestException  # incorrect json format send to endpoint
             else:
-                raise UnkownCloudException
+                raise UnknownAuthenticationException
         else:
             # store info of new token
             json_dict = r.json()

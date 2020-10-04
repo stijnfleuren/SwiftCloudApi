@@ -1,7 +1,7 @@
 import socket
 from collections import Callable
 
-from swift_cloud_py.authentication.authentication_errors import NoInternetConnectionException
+from swift_cloud_py.common.errors import NoInternetConnectionException
 
 
 def has_internet_connection() -> bool:

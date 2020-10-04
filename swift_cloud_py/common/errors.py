@@ -12,7 +12,15 @@ class UnauthorizedException(Exception):
     pass
 
 
-class UnkownCloudException(Exception):
+class UnknownAuthenticationException(Exception):
+    """
+    Exception to indicate that something went wrong in the cloud during authentication;
+    possibly an unexpected error was raised in the cloud.
+    """
+    pass
+
+
+class UnknownCloudException(Exception):
     """
     Exception to indicate that something went wrong in the cloud; possibly an unexpected error was raised in the cloud.
     """

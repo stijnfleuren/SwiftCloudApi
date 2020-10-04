@@ -6,7 +6,8 @@ import requests
 from requests import Response
 
 from swift_cloud_py.authentication.authentication import authenticate
-from swift_cloud_py.authentication.authentication_errors import UnkownCloudException, UnauthorizedException, BadRequestException
+from swift_cloud_py.common.errors import UnauthorizedException, BadRequestException, \
+    UnknownCloudException
 from swift_cloud_py.authentication.check_internet_connection import ensure_has_internet
 from swift_cloud_py.entities.control_output.fixed_time_schedule import FixedTimeSchedule
 from swift_cloud_py.entities.control_output.phase_diagram import PhaseDiagram
@@ -38,7 +39,7 @@ def check_status_code(response: Response) -> None:
     elif response.status_code in [504]:
         raise TimeoutError
     elif response.status_code != 200:
-        raise UnkownCloudException
+        raise UnknownCloudException
 
 
 class SwiftMobilityCloudApi:
@@ -117,7 +118,7 @@ class SwiftMobilityCloudApi:
             r = requests.post(endpoint, json=json_dict, headers=headers)
             logging.debug(f"finished calling endpoint {endpoint}")
         except requests.exceptions.ConnectionError:
-            raise UnkownCloudException("Connection with swift mobility cloud api could not be established")
+            raise UnknownCloudException("Connection with swift mobility cloud api could not be established")
 
         # check for errors
         check_status_code(response=r)
@@ -155,7 +156,7 @@ class SwiftMobilityCloudApi:
             r = requests.post(endpoint, json=json_dict, headers=headers)
             logging.debug(f"finished calling endpoint {endpoint}")
         except requests.exceptions.ConnectionError:
-            raise UnkownCloudException("Connection with swift mobility cloud api could not be established")
+            raise UnknownCloudException("Connection with swift mobility cloud api could not be established")
 
         # check for errors
         check_status_code(response=r)
