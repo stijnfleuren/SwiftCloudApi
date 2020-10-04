@@ -24,6 +24,7 @@ def create_intersection_and_optimize():
     - smc_api_secret: the secret access key of your swift mobility cloud api account
     If you do not have such an account yet, please contact cloud_api@swiftmobility.eu.
     """
+    logging.info(f"Running example '{os.path.basename(__file__)}'")
     # signalgroup consisting of two traffic light allowing 1 or 2 greenyellow intervals per repeating period.
     traffic_light1 = TrafficLight(capacity=1800, lost_time=2.2)
     traffic_light2 = TrafficLight(capacity=1810, lost_time=2.1)
@@ -52,18 +53,18 @@ def create_intersection_and_optimize():
     # set associated arrival rates
     arrival_rates = ArrivalRates(id_to_arrival_rates={"2": [800, 700], "5": [150], "8": [180]})
 
+    logging.info(f"Minimizing average experienced delay")
     # optimize fixed-time schedule
     fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=arrival_rates, objective=ObjectiveEnum.min_delay)
 
-    logging.info("Average experienced delay", objective_value)
+    logging.info(f"Average experienced delay {objective_value}")
     logging.info(fixed_time_schedule)
     logging.info(phase_diagram)
 
-    logging.info("Average experienced delay", objective_value)
-
     # the following code indicates how to compute a phase diagram from a fixed-time schedule (note that now it makes
     #  no sense to do so as it was already computed above)
+    logging.info("Computing phase diagram from fixed-time schedule. Should be the same as before")
     phase_diagram = SwiftMobilityCloudApi.get_phase_diagram(intersection=intersection,
                                                             fixed_time_schedule=fixed_time_schedule)
     logging.info(phase_diagram)

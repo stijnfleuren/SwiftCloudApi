@@ -23,6 +23,7 @@ def load_from_smd_and_run():
     
     Tested with Swift Mobility Desktop 0.7.0.alpha
     """
+    logging.info(f"Running example '{os.path.basename(__file__)}'")
     # absolute path to .json file that has been exported from swift mobility desktop
     root_dir = os.path.abspath(os.path.join(os.path.abspath(__file__), os.pardir, os.pardir))
     smd_export = os.path.join(root_dir, "examples", "example_smd_export.json")
@@ -34,17 +35,20 @@ def load_from_smd_and_run():
     logging.info(f"Loading intersection and traffic situation from disk")
     intersection = Intersection.from_json(intersection_dict=json_dict["intersection"])
     arrival_rates = ArrivalRates.from_json(arrival_rates_dict=json_dict["arrival_rates"])
+    logging.info(f"Loaded intersection and traffic situation from disk")
 
+    logging.info(f"Minimizing average experienced delay")
     fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=arrival_rates, min_period_duration=30, max_period_duration=180,
         objective=ObjectiveEnum.min_delay)
 
-    logging.info("Average experienced delay", objective_value)
+    logging.info(f"Average experienced delay {objective_value:.2f}")
     logging.info(fixed_time_schedule)
     logging.info(phase_diagram)
 
     # the following code indicates how to compute a phase diagram from a fixed-time schedule (note that now it makes
     #  no sense to do so as it was already computed above)
+    logging.info("Computing phase diagram from fixed-time schedule. Should be the same as before")
     phase_diagram = SwiftMobilityCloudApi.get_phase_diagram(intersection=intersection,
                                                             fixed_time_schedule=fixed_time_schedule)
     logging.info(phase_diagram)

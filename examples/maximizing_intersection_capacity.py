@@ -61,6 +61,7 @@ def maximize_intersection_capacity(print_fixed_time_schedule: bool = False):
 
     Tested with Swift Mobility Desktop 0.7.0.alpha
     """
+    logging.info(f"Running example '{os.path.basename(__file__)}'")
     # absolute path to .json file that has been exported from swift mobility desktop
     root_dir = os.path.abspath(os.path.join(os.path.abspath(__file__), os.pardir, os.pardir))
     smd_export = os.path.join(root_dir, "examples", "example_smd_export.json")
@@ -72,7 +73,9 @@ def maximize_intersection_capacity(print_fixed_time_schedule: bool = False):
     logging.info(f"Loading intersection and traffic situation from disk")
     intersection = Intersection.from_json(intersection_dict=json_dict["intersection"])
     arrival_rates = ArrivalRates.from_json(arrival_rates_dict=json_dict["arrival_rates"])
+    logging.info(f"Loaded intersection and traffic situation from disk")
 
+    logging.info(f"Maximizing capacity of the intersection")
     fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=arrival_rates, min_period_duration=30, max_period_duration=180,
         objective=ObjectiveEnum.max_capacity)
@@ -88,6 +91,7 @@ def maximize_intersection_capacity(print_fixed_time_schedule: bool = False):
     arrival_rates *= scaling_factor
     logging.info(f"Expected maximum sustainable increase: {(objective_value/scaling_factor - 1) * 100:.2f}%")
 
+    logging.info(f"Maximizing capacity of the intersection with scaled traffic")
     fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=arrival_rates, min_period_duration=30, max_period_duration=180,
         objective=ObjectiveEnum.max_capacity)
