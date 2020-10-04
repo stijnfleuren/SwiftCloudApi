@@ -44,15 +44,18 @@ class Authentication:
         elif cls._credentials.secret_access_key is None:
             raise UnauthorizedException("Environment variable smc_api_secret is not set")
         try:
+            logging.debug("updating authentication token")
             r = requests.post(url=AUTHENTICATION_URL,
                               json={"accessKey": cls._credentials.access_key,
                                     "secretAccessKey": cls._credentials.secret_access_key,
                                     "accountType": "cloud-api"})
-            logging.info("authentication token updated")
+            logging.debug("authentication token updated")
         except requests.exceptions.ConnectionError:  # no connection could be established
             if has_internet_connection():
+                logging.debug("updating authentication token failed: unkown exception")
                 raise UnkownCloudException
             else:
+                logging.debug("updating authentication token failed: no internet!")
                 raise NoInternetConnectionException
 
         if r.status_code != 200:

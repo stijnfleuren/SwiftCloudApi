@@ -113,9 +113,9 @@ class SwiftMobilityCloudApi:
                 max_period_duration=max_period_duration,
                 objective=objective.value
             )
-            logging.info(f"calling endpoint {endpoint}")
+            logging.debug(f"calling endpoint {endpoint}")
             r = requests.post(endpoint, json=json_dict, headers=headers)
-            logging.info(f"finished calling endpoint {endpoint}")
+            logging.debug(f"finished calling endpoint {endpoint}")
         except requests.exceptions.ConnectionError:
             raise UnkownCloudException("Connection with swift mobility cloud api could not be established")
 
@@ -151,9 +151,9 @@ class SwiftMobilityCloudApi:
                 greenyellow_intervals=fixed_time_schedule.to_json()["greenyellow_intervals"],
                 period=fixed_time_schedule.to_json()["period"]
             )
-            logging.info(f"calling endpoint {endpoint}")
+            logging.debug(f"calling endpoint {endpoint}")
             r = requests.post(endpoint, json=json_dict, headers=headers)
-            logging.info(f"finished calling endpoint {endpoint}")
+            logging.debug(f"finished calling endpoint {endpoint}")
         except requests.exceptions.ConnectionError:
             raise UnkownCloudException("Connection with swift mobility cloud api could not be established")
 

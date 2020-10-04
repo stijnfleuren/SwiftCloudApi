@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 
 from swift_cloud_py.enums import ObjectiveEnum
@@ -55,15 +56,15 @@ def create_intersection_and_optimize():
     fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=arrival_rates, objective=ObjectiveEnum.min_delay)
 
-    print("Average experienced delay", objective_value)
-    print(fixed_time_schedule)
-    print(phase_diagram)
+    logging.info("Average experienced delay", objective_value)
+    logging.info(fixed_time_schedule)
+    logging.info(phase_diagram)
 
     # the following code indicates how to compute a phase diagram from a fixed-time schedule (note that now it makes
     #  no sense to do so as it was already computed above)
     phase_diagram = SwiftMobilityCloudApi.get_phase_diagram(intersection=intersection,
                                                             fixed_time_schedule=fixed_time_schedule)
-    print(phase_diagram)
+    logging.info(phase_diagram)
 
 
 if __name__ == "__main__":

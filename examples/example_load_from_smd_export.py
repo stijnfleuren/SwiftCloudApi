@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 
 from swift_cloud_py.enums import ObjectiveEnum
@@ -10,7 +11,7 @@ from swift_cloud_py.entities.scenario.arrival_rates import ArrivalRates
 def load_from_smd_and_run():
     """
     Example showing how to:
-    - retrieve intersection information and arrival rates from a json file exported from Swift Mobility Export.
+    - retrieve intersection information and arrival rates from a json file exported from Swift Mobility Desktop.
     - use this information to optimize fixed-time schedules
     
     Note important:
@@ -35,17 +36,17 @@ def load_from_smd_and_run():
 
     fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=arrival_rates, min_period_duration=30, max_period_duration=180,
-        objective=ObjectiveEnum.max_capacity)
+        objective=ObjectiveEnum.min_delay)
 
-    print("maximum sustainable increase (scaling factor) in traffic", objective_value)
-    print(fixed_time_schedule)
-    print(phase_diagram)
+    logging.info("Average experienced delay", objective_value)
+    logging.info(fixed_time_schedule)
+    logging.info(phase_diagram)
 
     # the following code indicates how to compute a phase diagram from a fixed-time schedule (note that now it makes
     #  no sense to do so as it was already computed above)
     phase_diagram = SwiftMobilityCloudApi.get_phase_diagram(intersection=intersection,
                                                             fixed_time_schedule=fixed_time_schedule)
-    print(phase_diagram)
+    logging.info(phase_diagram)
 
 
 if __name__ == "__main__":
