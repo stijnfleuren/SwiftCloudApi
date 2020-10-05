@@ -31,7 +31,7 @@ def maximize_intersection_capacity(print_fixed_time_schedule: bool = False):
     Usecase 2: Smart traffic-light control
     Low-traffic and high-traffic situations require a different control strategy. We can periodically evaluate the
     traffic situation in an automated manner (e.g., every 30 minutes). Based on the result (the value of f) we can
-    (automatically!) decide to switch to a different control strategy based on the current traffic situation;
+    (automatically!) select the control strategy that best matches the current traffic situation;
     this would be truly smart traffic-light control!
 
     Usecase 3: Quantitative support to decide which traffic-light control to update.

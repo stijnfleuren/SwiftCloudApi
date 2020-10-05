@@ -7,6 +7,29 @@ This library provides a pure Python interface for the [Swift Mobility Cloud API]
 
 [Swift Mobility](https://www.swiftmobility.eu/>) provides services for fully automated optimization of fixed-time schedules (traffic light schedules) in a matter of seconds, even for the most complex intersections. [Swift Mobility](https://www.swiftmobility.eu/>) exposes a rest APIs and this library is intended to make it even easier for Python programmers to use.
 
+## Usecases
+
+### Smart traffic-light control
+
+#### Completely adaptive traffic light control
+The API can, in real-time, compute the optimal fixed-time schedule to best handle the current traffic situation; this enables truly smart and dynamic traffic light control that automatically adapts to the actual traffic situation. For example, by periodically computing the optimal fixed-time schedule and automatically converting it to a vehicle-actuated controller (e.g., using the green times as maximum green times and allowing green times to be terminated prematurely).
+
+#### Automatically switch between control strategies
+Low traffic and heavy traffic situations require a different control strategy. The API allows you to periodically quantify the current traffic situation in an automated manner, e.g., every 30 minutes. The result could be used to (automatically!) select the control strategy that best matches the current traffic situation; this would be truly smart traffic-light control!
+
+### Monitoring
+With the API you can quantify (in real-time) the amount of traffic arriving at the intersection to distinguish between low traffic, moderate traffic and heavy traffic situations. This information can be used to improve traffic management (e.g., redirect traffic to relieve highly congested parts of the network).
+
+### Strategic decision making
+
+#### Maintenance
+Suppose traffic flow is not as smooth as desired at an intersection (e.g., experienced delays are large). With the API you can quantify if the intersection actually has sufficient capacity. If it does, then it might be sensible to reevaluate (and potentially update) such traffic-light controllers. In this way, maintenance efforts can be focused on the intersections where large improvements can be expected. If the capacity of the intersection is expected to be insufficient as well, then this might motivate infrastructural changes (see next usecase).
+
+#### Updating infrastructure
+Traffic situations may change overtime, e.g., due to urban development. Therefore, it is very important to periodically evaluate if any infrastructural changes (or policy changes by the government) are needed.
+
+This is a very difficult decision to be made with high impact; quantitative support is really useful when making these decisions. With the API you can determine the maximum traffic increase that the infrastructure is able to handle under optimal traffic light control. This could be used to answer questions like: Is the capacity of the infrastructure (intersection) expected to still be sufficient in the upcoming 3 years?
+
 ## Installing
 You can install the [Swift Mobility Cloud API](https://www.swiftmobility.eu/services) using:
 
