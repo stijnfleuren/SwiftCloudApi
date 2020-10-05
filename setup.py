@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="swift-cloud-api",
-    version="0.0.2",
+    version="0.0.3",
     author="S.T.G. Fleuren",
     author_email="stijn.fleuren@swiftmobility.eu",
     description="Swift Mobility Cloud API Interface",
@@ -18,7 +18,7 @@ setuptools.setup(
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    package_data={'swift_cloud_api_examples': ['*.json']},
+    package_data={'swift_cloud_py': ['examples/*.json']},
     include_package_data=True,
     install_requires=[
         'requests'

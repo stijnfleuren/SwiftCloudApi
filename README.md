@@ -140,7 +140,7 @@ fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_
 ```
 We allow for several objectives:
 * **ObjectiveEnum.min_delay**: Search for the fixed-time schedule that minimizes the expected (average) delay experienced by road users.
-* **ObjectiveEnum.max_capacity**: Search for the fixed-time schedule that maximizes the largest increase in traffic (scaling factor) that the intersection can handle without becoming unstable/oversaturated. This gives an indication of how close to oversaturation the intersection is; an objective value of < 1 indicates that the intersection is oversaturated for all possible fixed-time schedules. This has usecases ranging from monitoring, smart traffic-light control and strategic decision making (see also examples/maximizing_intersection_capacity)
+* **ObjectiveEnum.max_capacity**: Search for the fixed-time schedule that maximizes the largest increase in traffic (scaling factor) that the intersection can handle without becoming unstable/oversaturated. This gives an indication of how close to oversaturation the intersection is; an objective value of < 1 indicates that the intersection is oversaturated for all possible fixed-time schedules. This has usecases ranging from monitoring, smart traffic-light control and strategic decision making (see also swift_cloud_py/examples/maximizing_intersection_capacity)
 * **ObjectiveEnum.min_period**: Search for the fixed-time schedule that has the smallest period duration (while still being stable).
 
 You can print the fixed-time schedule in pretty format:
@@ -158,7 +158,7 @@ The phase diagram can be printed in pretty format:
 print(phase_diagram)
 ```
 ### Examples
-On [github](https://github.com/stijnfleuren/SwiftCloudApi) you can find several examples in the folder examples to get you started.
+On [github](https://github.com/stijnfleuren/SwiftCloudApi) you can find several examples in the folder swift_cloud_py/examples to get you started.
 
 ## License
 MIT licence
