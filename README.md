@@ -65,8 +65,8 @@ signalgroup =  SignalGroup(id="2", traffic_lights=[traffic_light1, traffic_light
                            min_greenyellow=5, max_greenyellow=100, 
                            min_red=10, max_red=100, min_nr=1, max_nr=2)
 ```
-#### Relations between signalgroups
-We can create traffic light control restrictions between signalgroups. 
+#### Relations between signal groups
+We can create traffic light control restrictions between signal groups. 
 
 A conflict prevents two conflicting traffic streams from simultaneously crossing the intersection.
 ```python
@@ -135,7 +135,7 @@ The phase diagram can be printed in pretty format:
 print(phase_diagram)
 ```
 ### Examples
-In the folder \examples you can find several examples to get you started.
+On [github](https://github.com/stijnfleuren/SwiftCloudApi) you can find several examples in the folder examples to get you started.
 
 ## License
 MIT licence

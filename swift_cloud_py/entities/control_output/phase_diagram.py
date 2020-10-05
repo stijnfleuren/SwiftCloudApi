@@ -3,14 +3,14 @@ from typing import List
 
 
 def sort_by_name(name: str):
-    """ function needed to sort signalgroups by name """
+    """ function needed to sort signal groups by name """
     return len(name), name
 
 
 class GreenYellowPhase:
     def __init__(self, signalgroup_id: str, interval_index: int) -> None:
         """
-        Refers to the (interval_index + 1)th greenyellow interval of the signalgroup with id signalgroup_id
+        Refers to the (interval_index + 1)th greenyellow interval of the signal group with id signalgroup_id
         :param signalgroup_id:
         :param interval_index:
         """
@@ -50,7 +50,7 @@ class Phase:
         string = "["
         # visualize in sorted (by name) order
         greenyellow_phases = sorted(self.greenyellow_phases,
-                                    key=lambda greenyellow_phase: sort_by_name(greenyellow_phase.signalgroup_id))
+                                    key=lambda _greenyellow_phase: sort_by_name(_greenyellow_phase.signalgroup_id))
         for index, greenyellow_phase in enumerate(greenyellow_phases):
             if index > 0:
                 string += ", "

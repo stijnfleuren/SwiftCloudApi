@@ -1,6 +1,5 @@
 from __future__ import annotations  # allows using TrafficLight-typing inside TrafficLight-class
 
-from copy import deepcopy
 from typing import Optional, Dict
 
 

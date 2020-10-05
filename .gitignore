@@ -13,7 +13,6 @@ swift_mobility_cloud_api_interface_stijnfleuren.egg-info/
 
 # Node artifact files
 node_modules/
-dist/
 
 # Compiled Java class files
 *.class

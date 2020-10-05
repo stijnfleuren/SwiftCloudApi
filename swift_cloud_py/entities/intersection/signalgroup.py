@@ -1,12 +1,12 @@
 from __future__ import annotations  # allows using SignalGroup-typing inside SignalGroup-class
 
-from copy import deepcopy
 from typing import List, Dict
 
 from swift_cloud_py.entities.intersection.traffic_light import TrafficLight
 
 
 class SignalGroup:
+    # noinspection PyShadowingBuiltins
     def __init__(self, id: str, traffic_lights: List[TrafficLight], min_greenyellow: float, max_greenyellow: float,
                  min_red: float,  max_red: float, min_nr: int = 1, max_nr: int = 1) -> None:
         """

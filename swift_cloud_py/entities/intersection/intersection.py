@@ -15,9 +15,9 @@ class Intersection:
         strategy (e.g., sync starts etc.);
 
         Note: to optimize a fixed-time controller for two intersections with one controller, then this has to be
-        'modelled' as one intersection; the signalgroups (and conflicts etc.) of both intersections have to be
+        'modelled' as one intersection; the signal groups (and conflicts etc.) of both intersections have to be
         provided to this Intersection object.
-        :param signalgroups: list of signalgroup objects present at the intersection.
+        :param signalgroups: list of signal group objects present at the intersection.
         :param conflicts: list of conflicts at the intersection.
         :param sync_starts: list of synchronous starts desired for this intersection.
         :param coordinations: list of coordinations desired for this intersection.

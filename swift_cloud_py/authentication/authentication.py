@@ -52,7 +52,7 @@ class Authentication:
             logging.debug("authentication token updated")
         except requests.exceptions.ConnectionError:  # no connection could be established
             if has_internet_connection():
-                logging.debug("updating authentication token failed: unkown exception")
+                logging.debug("updating authentication token failed: unknown exception")
                 raise UnknownAuthenticationException
             else:
                 logging.debug("updating authentication token failed: no internet!")

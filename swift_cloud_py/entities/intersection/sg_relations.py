@@ -5,14 +5,14 @@ from typing import Dict
 class Conflict:
     def __init__(self, id1: str, id2: str, setup12: float, setup21: float) -> None:
         """
-        A conflict between two signalgroups; this indicates that the corresponding traffic streams are conflicting and
+        A conflict between two signal groups; this indicates that the corresponding traffic streams are conflicting and
         may not simultaneously cross the intersection.
-        :param id1: id of signalgroup
-        :param id2: id of signalgroup
-        :param setup12: minimum time between the end of a greenyellow interval of signalgroup id1 and the start of
-        a greenyellow interval of signalgroup id2.
-        :param setup21: minimum time between the end of a greenyellow interval of signalgroup id2 and the start of
-        a greenyellow interval of signalgroup id1.
+        :param id1: id of signal group
+        :param id2: id of signal group
+        :param setup12: minimum time between the end of a greenyellow interval of signal group id1 and the start of
+        a greenyellow interval of signal group id2.
+        :param setup21: minimum time between the end of a greenyellow interval of signal group id2 and the start of
+        a greenyellow interval of signal group id1.
         """
         assert setup12 + setup21 >= 0
         # by converting to the correct data type we ensure correct types are used

@@ -6,13 +6,13 @@ from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 
 
 def sort_by_name(name: str):
-    """ function needed to sort signalgroups by name """
+    """ function needed to sort signal groups by name """
     return len(name), name
 
 
 class FixedTimeSchedule:
     """
-    Periodically repeating schedule specifying when signalgroups have a greenyellow interval.
+    Periodically repeating schedule specifying when signal groups have a greenyellow interval.
     """
     def __init__(self, greenyellow_intervals: Dict[str, List[GreenYellowInterval]], period: float) -> None:
         self.greenyellow_intervals = greenyellow_intervals
@@ -20,7 +20,7 @@ class FixedTimeSchedule:
 
     def get_greenyellow_intervals(self, signalgroup: SignalGroup) -> List[GreenYellowInterval]:
         """
-        get all green intervals of signalgroup with id signalgroup.id
+        get all green intervals of signal group with id signalgroup.id
         :param signalgroup:
         :return:
         """
@@ -28,7 +28,7 @@ class FixedTimeSchedule:
 
     def get_greenyellow_interval(self, signalgroup: SignalGroup, k: int) -> GreenYellowInterval:
         """
-        get the green intervals k (index starts at 0!) of signalgroup with id signalgroup.id
+        get the green intervals k (index starts at 0!) of signal group with id signalgroup.id
         :param signalgroup:
         :param k:
         :return:
@@ -63,7 +63,7 @@ class FixedTimeSchedule:
                                              key=lambda item: sort_by_name(item[0]))
         for sg_id, greenyellow_intervals in greenyellow_interval_tuples:
             string += "\n"
-            # signalgroup name followed by semicolon, left aligned with width of max_name + 2
+            # signal group name followed by semicolon, left aligned with width of max_name + 2
             string += f"\t\t{sg_id + ':':<{max_name + 2}}"
             for interval_index, interval in enumerate(greenyellow_intervals):
                 if 0 < interval_index < len(greenyellow_intervals) - 1:

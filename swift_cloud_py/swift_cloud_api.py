@@ -60,7 +60,7 @@ class SwiftMobilityCloudApi:
                           ) -> Tuple[FixedTimeSchedule, PhaseDiagram, float]:
         """
         Optimize a fixed-time schedule
-        :param intersection: intersection for which to optimize the fts (contains signalgroups, conflicts and more)
+        :param intersection: intersection for which to optimize the fts (contains signal groups, conflicts and more)
         :param arrival_rates: arrival rates in personal car equivalent per hour (PCE/h)
         :param horizon: time period of interest in hours.
         :param min_period_duration: minimum period duration of the fixed-time schedule in seconds
@@ -91,12 +91,12 @@ class SwiftMobilityCloudApi:
 
         for signalgroup in intersection.signalgroups:
             assert signalgroup.id in arrival_rates.id_to_arrival_rates, \
-                f"arrival rate(s) must be specified for signalgroup {signalgroup.id}"
+                f"arrival rate(s) must be specified for signal group {signalgroup.id}"
             assert len(arrival_rates.id_to_arrival_rates[signalgroup.id]) == len(signalgroup.traffic_lights), \
-                f"arrival rate(s) must be specified for all traffic lights of signalgroup {signalgroup.id}"
+                f"arrival rate(s) must be specified for all traffic lights of signal group {signalgroup.id}"
 
             assert signalgroup.id in initial_queue_lengths.id_to_queue_lengths, \
-                f"initial_queue_lengths(s) must be specified for signalgroup {signalgroup.id}"
+                f"initial_queue_lengths(s) must be specified for signal group {signalgroup.id}"
             assert len(initial_queue_lengths.id_to_queue_lengths[signalgroup.id]) == len(signalgroup.traffic_lights), \
                 f"initial_queue_lengths(s) must be specified for all traffic lights of signalgroup {signalgroup.id}"
 
