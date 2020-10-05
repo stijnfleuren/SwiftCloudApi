@@ -87,7 +87,7 @@ def maximize_intersection_capacity(print_fixed_time_schedule: bool = False):
         logging.info(phase_diagram)
 
     scaling_factor = 1.2
-    logging.info(f"Scaling original amount of traffic with {(scaling_factor - 1) * 100:.2f}%")
+    logging.info(f"Increasing original amount of traffic with {(scaling_factor - 1) * 100:.2f}%")
     arrival_rates *= scaling_factor
     logging.info(f"Expected maximum sustainable increase: {(objective_value/scaling_factor - 1) * 100:.2f}%")
 

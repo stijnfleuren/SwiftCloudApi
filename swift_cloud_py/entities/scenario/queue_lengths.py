@@ -28,6 +28,6 @@ class QueueLengths:
 
     def __truediv__(self, other: float) -> ArrivalRates:
         """ divide the queue length by a time interval ('other' in hours) to get a rate in PCE/h"""
-        assert isinstance(other, float), "can divide queue_lengths rates only by float"
+        assert isinstance(other, (int, float)), "can divide queue_lengths rates only by float"
         id_to_arrival_rates = {id_: [rate/other for rate in rates] for id_, rates in self.id_to_queue_lengths.items()}
         return ArrivalRates(id_to_arrival_rates=id_to_arrival_rates)

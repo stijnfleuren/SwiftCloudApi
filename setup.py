@@ -21,7 +21,7 @@ setuptools.setup(
     package_data={'examples': ['*.json']},
     include_package_data=True,
     install_requires=[
-          'requests'
-      ],
+        'requests'
+    ],
     python_requires='>=3.7',
 )
