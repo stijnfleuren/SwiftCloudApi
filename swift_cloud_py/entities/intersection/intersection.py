@@ -94,7 +94,7 @@ class Intersection:
 
     def _validate(self) -> None:
         """
-        # validate all inputs
+        validate the arguments provided to this object
         :return: - (raises error if validation does not pass)
         """
         assert isinstance(self.signalgroups, list), "signalgroups should be a list of SignalGroup objects"

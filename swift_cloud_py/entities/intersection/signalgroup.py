@@ -54,7 +54,11 @@ class SignalGroup:
                                            for traffic_light_dict in signalgroup_dict["traffic_lights"]]
                            )
 
-    def _validate(self):
+    def _validate(self) -> None:
+        """
+        validate the arguments provided to this object
+        :return: - (raises error if validation does not pass)
+        """
         assert isinstance(self.traffic_lights, list), "traffic_lights should be a list of TrafficLight objects"
         for traffic_light in self.traffic_lights:
             assert isinstance(traffic_light,

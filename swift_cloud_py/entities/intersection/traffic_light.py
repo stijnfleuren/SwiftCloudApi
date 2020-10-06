@@ -47,7 +47,11 @@ class TrafficLight:
                             max_saturation=traffic_light_dict["max_saturation"]
                             if "max_saturation" in traffic_light_dict else None)
 
-    def _validate(self):
+    def _validate(self) -> None:
+        """
+        validate the arguments provided to this object
+        :return: - (raises error if validation does not pass)
+        """
         if self.max_saturation is not None:
             assert self.max_saturation > 0.0
         assert self.weight >= 0.0
