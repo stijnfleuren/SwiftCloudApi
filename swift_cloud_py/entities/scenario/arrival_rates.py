@@ -14,6 +14,16 @@ class ArrivalRates:
         """
         self.id_to_arrival_rates = id_to_arrival_rates
 
+        # validate structure of id_to_arrival_rates
+        error_message = "id_to_arrival_rates should be a dictionary mapping from a signal group id (str) to " \
+                        "a list of arrival rates (List[float])"
+        assert isinstance(id_to_arrival_rates, dict), error_message
+        for _id, rates in id_to_arrival_rates.items():
+            assert isinstance(_id, str), error_message
+            assert isinstance(rates, list), error_message
+            for rate in rates:
+                assert isinstance(rate, (float, int)), error_message
+
     def to_json(self):
         """get dictionary structure that can be stored as json with json.dumps()"""
         return self.id_to_arrival_rates
@@ -39,6 +49,16 @@ class ArrivalRates:
         """ add two arrival rates """
         assert isinstance(other, ArrivalRates), "can only add ArrivalRates object to ArrivalRates"
         other_id_to_arrival_rates = other.id_to_arrival_rates
+
+        # validate inputs
+        other_ids = {_id for _id in other_id_to_arrival_rates}
+        other_id_to_num_rates = {_id: len(rates) for _id, rates in other_id_to_arrival_rates.items()}
+        ids = {_id for _id in self.id_to_arrival_rates}
+        id_to_num_rates = {_id: len(rates) for _id, rates in self.id_to_arrival_rates.items()}
+        assert ids == other_ids, "when adding two ArrivalRates they should have the same ids"
+        assert id_to_num_rates == other_id_to_num_rates, \
+            "when adding two ArrivalRates all rates should have equal length"
+
         id_to_arrival_rates = \
             {id_: [rate + other_rate for rate, other_rate in zip(rates, other_id_to_arrival_rates[id_])]
              for id_, rates in self.id_to_arrival_rates.items()}
