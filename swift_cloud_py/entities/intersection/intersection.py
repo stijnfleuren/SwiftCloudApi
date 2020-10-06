@@ -38,6 +38,60 @@ class Intersection:
         other_relations.extend(self.prestarts)
         return other_relations
 
+    def to_json(self):
+        """get dictionary structure that can be stored as json with json.dumps()"""
+        json_dict = dict(signalgroups=[signalgroup.to_json() for signalgroup in self.signalgroups],
+                         conflicts=[conflict.to_json() for conflict in self.conflicts],
+                         other_relations=[other_relation.to_json() for other_relation in self.other_relations])
+        return json_dict
+
+    @staticmethod
+    def from_json(intersection_dict: Dict) -> Intersection:
+        """
+        Loading intersection from json (expected same json structure as generated with to_json)
+        :param intersection_dict:
+        :return: intersection object
+        """
+        # load signal groups
+        signalgroups = [SignalGroup.from_json(signalgroup_dict=signalgroup_dict)
+                        for signalgroup_dict in intersection_dict["signalgroups"]]
+
+        # load conflicts
+        conflicts = [Conflict.from_json(conflict_dict=conflict_dict)
+                     for conflict_dict in intersection_dict["conflicts"]]
+
+        # load other relations (synchronous starts, coordinations and prestarts)
+        sync_starts = []
+        coordinations = []
+        prestarts = []
+        for other_relation_dict in intersection_dict["other_relations"]:
+            assert other_relation_dict["from_start_gy"] and other_relation_dict["to_start_gy"], \
+                "besides conflicts, at the moment the cloud api can only handle synchronous starts, coordinations " \
+                "and prestarts."
+            if other_relation_dict["min_time"] == other_relation_dict["max_time"]:
+                if other_relation_dict["min_time"] == 0:  # sync start
+                    sync_starts.append(SyncStart.from_json(sync_start_dict=other_relation_dict))
+                else:  # coordination
+                    coordinations.append(Coordination.from_json(coordination_dict=other_relation_dict))
+            else:  # prestart
+                prestarts.append(PreStart.from_json(pre_start_dict=other_relation_dict))
+        return Intersection(signalgroups=signalgroups, conflicts=conflicts, sync_starts=sync_starts,
+                            coordinations=coordinations, prestarts=prestarts)
+
+    @staticmethod
+    def from_swift_mobility_export(json_path) -> Intersection:
+        """
+        Loading intersection from json-file exported from Swift Mobility Desktop
+        :param json_path: path to json file
+        :return: intersection object
+        """
+        with open(json_path, "r") as f:
+            json_dict = json.load(f)
+
+        # the json structure conforms with the expected structure; it only contains additional information (which is
+        # ignored).
+        return Intersection.from_json(intersection_dict=json_dict["intersection"])
+
     def validate(self) -> None:
         """
         # validate all inputs
@@ -112,57 +166,3 @@ class Intersection:
                 raise ValueError(f"setup21 plus min_greenyellow of signal group sg2 must be strictly positive, "
                                  f"which is not satisfied for signal groups sg1='{conflict.id1}' "
                                  f"and sg2='{conflict.id2}'.")
-
-    def to_json(self):
-        """get dictionary structure that can be stored as json with json.dumps()"""
-        json_dict = dict(signalgroups=[signalgroup.to_json() for signalgroup in self.signalgroups],
-                         conflicts=[conflict.to_json() for conflict in self.conflicts],
-                         other_relations=[other_relation.to_json() for other_relation in self.other_relations])
-        return json_dict
-
-    @staticmethod
-    def from_json(intersection_dict: Dict) -> Intersection:
-        """
-        Loading intersection from json (expected same json structure as generated with to_json)
-        :param intersection_dict:
-        :return: intersection object
-        """
-        # load signal groups
-        signalgroups = [SignalGroup.from_json(signalgroup_dict=signalgroup_dict)
-                        for signalgroup_dict in intersection_dict["signalgroups"]]
-
-        # load conflicts
-        conflicts = [Conflict.from_json(conflict_dict=conflict_dict)
-                     for conflict_dict in intersection_dict["conflicts"]]
-
-        # load other relations (synchronous starts, coordinations and prestarts)
-        sync_starts = []
-        coordinations = []
-        prestarts = []
-        for other_relation_dict in intersection_dict["other_relations"]:
-            assert other_relation_dict["from_start_gy"] and other_relation_dict["to_start_gy"], \
-                "besides conflicts, at the moment the cloud api can only handle synchronous starts, coordinations " \
-                "and prestarts."
-            if other_relation_dict["min_time"] == other_relation_dict["max_time"]:
-                if other_relation_dict["min_time"] == 0:  # sync start
-                    sync_starts.append(SyncStart.from_json(sync_start_dict=other_relation_dict))
-                else:  # coordination
-                    coordinations.append(Coordination.from_json(coordination_dict=other_relation_dict))
-            else:  # prestart
-                prestarts.append(PreStart.from_json(pre_start_dict=other_relation_dict))
-        return Intersection(signalgroups=signalgroups, conflicts=conflicts, sync_starts=sync_starts,
-                            coordinations=coordinations, prestarts=prestarts)
-
-    @staticmethod
-    def from_swift_mobility_export(json_path) -> Intersection:
-        """
-        Loading intersection from json-file exported from Swift Mobility Desktop
-        :param json_path: path to json file
-        :return: intersection object
-        """
-        with open(json_path, "r") as f:
-            json_dict = json.load(f)
-
-        # the json structure conforms with the expected structure; it only contains additional information (which is
-        # ignored).
-        return Intersection.from_json(intersection_dict=json_dict["intersection"])
