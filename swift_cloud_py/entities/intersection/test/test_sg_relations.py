@@ -43,3 +43,27 @@ class TestConflictInputValidation(unittest.TestCase):
                 input_dict[key] = 'string'  # all arguments are numbers
                 with self.assertRaises(ValueError):
                     Conflict(**input_dict)
+
+                # THEN an error should be raised
+
+    def test_non_unique_ids(self) -> None:
+        """ Test giving two identical ids to initialize a Conflict """
+        # GIVEN
+        input_dict = TestConflictInputValidation.get_default_inputs()
+        input_dict["id1"] = "1"
+        input_dict["id2"] = "1"
+        with self.assertRaises(AssertionError):
+            Conflict(**input_dict)
+
+        # THEN an error should be raised
+
+    def test_setup_sum_negative(self) -> None:
+        """ Test sum of setups being negative """
+        # GIVEN
+        input_dict = TestConflictInputValidation.get_default_inputs()
+        input_dict["setup12"] = 0
+        input_dict["setup21"] = -1
+        with self.assertRaises(AssertionError):
+            Conflict(**input_dict)
+
+        # THEN an error should be raised
