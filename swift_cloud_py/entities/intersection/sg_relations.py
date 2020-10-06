@@ -122,6 +122,7 @@ class PreStart:
         self.min_prestart = float(min_prestart)
         self.max_prestart = float(max_prestart)
         assert self.from_id != self.to_id, "ids of Prestart must be different"
+        assert self.max_prestart >= self.min_prestart, "max_prestart should exceed (or equal) min_prestart"
 
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
