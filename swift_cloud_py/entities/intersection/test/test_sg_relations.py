@@ -111,9 +111,9 @@ class TestSyncStartInputValidation(unittest.TestCase):
         # WHEN initializing the synchronous start
         sync_start = SyncStart(**input_dict)
 
-        # Should not give an error (datatype is converted to string)
-        self.assertEqual(sync_start.from_id, "1")
-        self.assertEqual(sync_start.to_id, "2")
+        # Should not give an error (datatype is converted to string); note that from_id and to_id might have swapped;
+        # this is done to store this SyncStart in an unambiguous manner.
+        self.assertSetEqual({sync_start.from_id, sync_start.to_id}, {"1", "2"})
 
     def test_non_unique_ids(self) -> None:
         """ Test giving two identical ids to initialize a Conflict """
