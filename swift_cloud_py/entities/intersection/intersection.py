@@ -43,14 +43,19 @@ class Intersection:
         # validate all inputs
         :return: - (raises error if validation does not pass)
         """
+        assert isinstance(self.signalgroups, list)
         for signalgroup in self.signalgroups:
             assert isinstance(signalgroup, SignalGroup), "signalgroups should be a list of SignalGroup objects"
+        assert isinstance(self.conflicts, list)
         for conflict in self.conflicts:
             assert isinstance(conflict, Conflict), "conflicts should be a list of Conflict objects"
+        assert isinstance(self.sync_starts, list)
         for sync_start in self.sync_starts:
             assert isinstance(sync_start, SyncStart), "sync_start should be a list of SyncStart objects"
+        assert isinstance(self.coordinations, list)
         for coordination in self.coordinations:
             assert isinstance(coordination, Coordination), "coordination should be a list of Coordination objects"
+        assert isinstance(self.prestarts, list)
         for prestart in self.prestarts:
             assert isinstance(prestart, PreStart), "prestart should be a list of PreStart objects"
 
