@@ -21,9 +21,7 @@ class SignalGroup:
         :param max_nr: maximum number of greenyellow intervals (during a repeating period);
         the lower this value the faster the optimization!
         """
-        for traffic_light in traffic_lights:
-            assert isinstance(traffic_light, TrafficLight), "traffic_lights should be a list of TrafficLight objects"
-        # by converting to the correct data type we ensure correct types are used
+        # by converting to the correct type we already check for incompatible types
         self.id = str(id)
         self.min_greenyellow = float(min_greenyellow)
         self.max_greenyellow = float(max_greenyellow)
@@ -32,6 +30,7 @@ class SignalGroup:
         self.traffic_lights = traffic_lights
         self.min_nr = int(min_nr)
         self.max_nr = int(max_nr)
+        self._validate()
 
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
@@ -54,4 +53,16 @@ class SignalGroup:
                            traffic_lights=[TrafficLight.from_json(traffic_light_dict)
                                            for traffic_light_dict in signalgroup_dict["traffic_lights"]]
                            )
+
+    def _validate(self):
+        assert isinstance(self.traffic_lights, list), "traffic_lights should be a list of TrafficLight objects"
+        for traffic_light in self.traffic_lights:
+            assert isinstance(traffic_light,
+                              TrafficLight), "traffic_lights should be a list of TrafficLight objects"
+        assert self.min_greenyellow >= 0
+        assert 0 < self.max_greenyellow >= self.min_greenyellow
+        assert self.min_red >= 0
+        assert 0 < self.max_red >= self.min_red
+        assert self.min_nr >= 1
+        assert int(self.max_nr) >= int(self.min_nr)
 
