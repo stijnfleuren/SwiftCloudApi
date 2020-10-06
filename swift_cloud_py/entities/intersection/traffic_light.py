@@ -21,10 +21,10 @@ class TrafficLight:
         counts twice as hard as a delay at a traffic light with weight=1.0.
         :param max_saturation: maximum allowed saturation (1.0 is at the verge of oversaturation).
         """
-        if max_saturation:
-            assert max_saturation >= 0.0
+        if max_saturation is not None:
+            assert max_saturation > 0.0
         assert weight >= 0.0
-        assert capacity >= 0.0
+        assert capacity > 0.0
         assert lost_time >= 0.0
         # by converting to the correct data type we ensure correct types are used
         self.capacity = float(capacity)  # store capacity in PCE/second (instead of PCE/h)
