@@ -14,12 +14,13 @@ class Conflict:
         :param setup21: minimum time between the end of a greenyellow interval of signal group id2 and the start of
         a greenyellow interval of signal group id1.
         """
-        assert setup12 + setup21 >= 0
         # by converting to the correct data type we ensure correct types are used
         self.id1 = str(id1)
         self.id2 = str(id2)
         self.setup12 = float(setup12)  # defined as time from end gy of sg with id1 to start gy of sg with id2
         self.setup21 = float(setup21)
+        assert self.id1 != self.id2, "ids of conflict must be different"
+        assert setup12 + setup21 >= 0, "setup12+setup21 must be non-negative"
 
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
@@ -52,6 +53,8 @@ class SyncStart:
         if self.from_id < self.to_id:
             self.to_id, self.from_id = self.from_id, self.to_id
 
+        assert self.from_id != self.to_id, "ids of SyncStart must be different"
+
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
         return {"from_id": self.from_id, "from_start_gy": True,
@@ -83,6 +86,7 @@ class Coordination:
         self.from_id = str(from_id)
         self.to_id = str(to_id)
         self.coordination_time = float(coordination_time)
+        assert self.from_id != self.to_id, "ids of Coordination must be different"
 
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
@@ -117,6 +121,7 @@ class PreStart:
         self.to_id = str(to_id)
         self.min_prestart = float(min_prestart)
         self.max_prestart = float(max_prestart)
+        assert self.from_id != self.to_id, "ids of Prestart must be different"
 
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
