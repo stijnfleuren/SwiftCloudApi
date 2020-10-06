@@ -12,7 +12,7 @@ class TestInputValidation(unittest.TestCase):
 
     @staticmethod
     def get_default_inputs() -> Dict:
-        """ function to get default (valid) inputs for Intersection() """
+        """ Function to get default (valid) inputs for Intersection() """
         signalgroups = [SignalGroup(id=f"sg{i+1}", traffic_lights=[TrafficLight(capacity=1800, lost_time=1)],
                                     min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80) for i in range(5)]
         conflicts = [Conflict(id1="sg1", id2="sg2", setup12=1, setup21=2)]
@@ -23,7 +23,7 @@ class TestInputValidation(unittest.TestCase):
                     coordinations=coordinations, prestarts=prestarts)
 
     def test_successful_validation(self) -> None:
-        """ test initializing Intersection object with correct input """
+        """ Test initializing Intersection object with correct input """
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
 
@@ -33,7 +33,7 @@ class TestInputValidation(unittest.TestCase):
         # THEN no exception should occur
 
     def test_wrong_type(self) -> None:
-        """ test providing the wrong type of """
+        """ Test providing the wrong type of arguments (no list)"""
 
         # WHEN an input contains the wrong data type
         for key in TestInputValidation.get_default_inputs():
@@ -48,7 +48,7 @@ class TestInputValidation(unittest.TestCase):
                     # THEN an error should be raised
 
     def test_wrong_type_in_list(self) -> None:
-        """ test providing the wrong type of """
+        """ Test providing the wrong type of elements inside the arguments (which are lists) """
 
         for key in TestInputValidation.get_default_inputs():
             with self.subTest(f"Wrong type in input '{key}'"):
@@ -62,6 +62,7 @@ class TestInputValidation(unittest.TestCase):
                     # THEN an error should be raised
 
     def test_ids_not_unique(self) -> None:
+        """ Test for multiple signal groups having the same id """
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
 
@@ -73,6 +74,7 @@ class TestInputValidation(unittest.TestCase):
             # THEN an error should be raised
 
     def test_unknown_ids(self) -> None:
+        """ Test unknown ids being used in relations between signal groups """
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
 
@@ -89,6 +91,7 @@ class TestInputValidation(unittest.TestCase):
                     # THEN an error should be raised
 
     def test_multiple_relations(self) -> None:
+        """ Test multiple relations being provided for the same pair of signal groups """
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
 
@@ -121,6 +124,7 @@ class TestInputValidation(unittest.TestCase):
                     # THEN an error should be raised
 
     def test_setup_to_small(self) -> None:
+        """ Test for setup time being too small """
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
 
@@ -136,6 +140,8 @@ class TestInputValidation(unittest.TestCase):
 
 class TestOtherRelations(unittest.TestCase):
     def test_other_relations(self) -> None:
+        """ Test if the attribute other_relation containers all other relations (sync starts,
+         coordinations and prestarts)"""
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
 
@@ -154,6 +160,7 @@ class TestOtherRelations(unittest.TestCase):
 
 class TestJsonConversion(unittest.TestCase):
     def test_json_back_and_forth(self) -> None:
+        """ Test converting back and forth from and to json """
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
 
