@@ -28,10 +28,7 @@ class TestInputValidation(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
 
         # WHEN
-        Intersection(
-            signalgroups=input_dict["signalgroups"], conflicts=input_dict["conflicts"],
-            sync_starts=input_dict["sync_starts"], coordinations=input_dict["coordinations"],
-            prestarts=input_dict["prestarts"])
+        Intersection(**input_dict)
 
         # THEN no exception should occur
 
@@ -46,10 +43,7 @@ class TestInputValidation(unittest.TestCase):
                 input_dict[key] = 10  # wrong type (not a list)
                 with self.assertRaises(AssertionError):
                     # WHEN initializing the intersection
-                    Intersection(
-                        signalgroups=input_dict["signalgroups"], conflicts=input_dict["conflicts"],
-                        sync_starts=input_dict["sync_starts"], coordinations=input_dict["coordinations"],
-                        prestarts=input_dict["prestarts"])
+                    Intersection(**input_dict)
 
                     # THEN an error should be raised
 
@@ -63,10 +57,7 @@ class TestInputValidation(unittest.TestCase):
                 input_dict[key].append(10)  # add other object (of wrong type) to the list
                 with self.assertRaises(AssertionError):
                     # WHEN initializing the intersection
-                    Intersection(
-                        signalgroups=input_dict["signalgroups"], conflicts=input_dict["conflicts"],
-                        sync_starts=input_dict["sync_starts"], coordinations=input_dict["coordinations"],
-                        prestarts=input_dict["prestarts"])
+                    Intersection(**input_dict)
 
                     # THEN an error should be raised
 
@@ -77,10 +68,7 @@ class TestInputValidation(unittest.TestCase):
         # WHEN an id is used twice
         input_dict["signalgroups"][-1].id = "sg1"  # other object (of wrong type) to the list
         with self.assertRaises(ValueError):
-            Intersection(
-                signalgroups=input_dict["signalgroups"], conflicts=input_dict["conflicts"],
-                sync_starts=input_dict["sync_starts"], coordinations=input_dict["coordinations"],
-                prestarts=input_dict["prestarts"])
+            Intersection(**input_dict)
 
             # THEN an error should be raised
 
@@ -96,10 +84,7 @@ class TestInputValidation(unittest.TestCase):
                 input_dict[key][0].from_id = "unknown"
             with self.subTest(f"Unknown id used in input '{key}'"):
                 with self.assertRaises(ValueError):
-                    Intersection(
-                        signalgroups=input_dict["signalgroups"], conflicts=input_dict["conflicts"],
-                        sync_starts=input_dict["sync_starts"], coordinations=input_dict["coordinations"],
-                        prestarts=input_dict["prestarts"])
+                    Intersection(**input_dict)
 
                     # THEN an error should be raised
 
@@ -131,10 +116,7 @@ class TestInputValidation(unittest.TestCase):
 
             with self.subTest(f"Two relations ('{key1}' and '{key2}') for same signalgroup pair"):
                 with self.assertRaises(ValueError):
-                    Intersection(
-                        signalgroups=input_dict["signalgroups"], conflicts=input_dict["conflicts"],
-                        sync_starts=input_dict["sync_starts"], coordinations=input_dict["coordinations"],
-                        prestarts=input_dict["prestarts"])
+                    Intersection(**input_dict)
 
                     # THEN an error should be raised
 
@@ -147,10 +129,7 @@ class TestInputValidation(unittest.TestCase):
             with self.subTest(f"setup too small: '{setup12}'"):
                 input_dict["conflicts"][0].setup12 = setup12
                 with self.assertRaises(ValueError):
-                    Intersection(
-                        signalgroups=input_dict["signalgroups"], conflicts=input_dict["conflicts"],
-                        sync_starts=input_dict["sync_starts"], coordinations=input_dict["coordinations"],
-                        prestarts=input_dict["prestarts"])
+                    Intersection(**input_dict)
 
             # THEN an error should be raised
 
@@ -161,10 +140,7 @@ class TestOtherRelations(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
 
         # WHEN an unknown id is used in a relations between signal groups
-        intersection = Intersection(
-            signalgroups=input_dict["signalgroups"], conflicts=input_dict["conflicts"],
-            sync_starts=input_dict["sync_starts"], coordinations=input_dict["coordinations"],
-            prestarts=input_dict["prestarts"])
+        intersection = Intersection(**input_dict)
 
         other_relations = intersection.other_relations
         # THEN other_relations is the list of all sync_starts, coordinations and prestarts
@@ -182,10 +158,7 @@ class TestJsonConversion(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
 
         # WHEN an unknown id is used in a relations between signal groups
-        intersection = Intersection(
-            signalgroups=input_dict["signalgroups"], conflicts=input_dict["conflicts"],
-            sync_starts=input_dict["sync_starts"], coordinations=input_dict["coordinations"],
-            prestarts=input_dict["prestarts"])
+        intersection = Intersection(**input_dict)
 
         # THEN converting back and forth should in the end give the same result
         intersection_dict = intersection.to_json()
