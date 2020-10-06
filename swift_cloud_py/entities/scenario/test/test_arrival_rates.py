@@ -69,7 +69,7 @@ class TestInputValidation(unittest.TestCase):
 class TestOperations(unittest.TestCase):
 
     def test_multiply(self) -> None:
-        """ Test initializing ArrivalRates object with correct input """
+        """ Test multiplying ArrivalRates """
         # GIVEN
         arrival_rates1 = ArrivalRates(id_to_arrival_rates={"1": [1000, 950], "2": [850, 700]})
 
@@ -81,7 +81,7 @@ class TestOperations(unittest.TestCase):
         self.assertListEqual(arrival_rates1.id_to_arrival_rates["2"], [850 * 1.3, 700 * 1.3])
 
     def test_add(self) -> None:
-        """ Test initializing ArrivalRates object with correct input """
+        """ Test adding two ArrivalRates """
         # GIVEN
         arrival_rates1 = ArrivalRates(id_to_arrival_rates={"1": [1000, 950], "2": [850, 700]})
         arrival_rates2 = ArrivalRates(id_to_arrival_rates={"1": [642, 230], "2": [600, 355]})
@@ -94,7 +94,7 @@ class TestOperations(unittest.TestCase):
         self.assertListEqual(arrival_rates1.id_to_arrival_rates["2"], [850 + 600, 700 + 355])
 
     def test_add_different_ids(self) -> None:
-        """ Test initializing ArrivalRates object with correct input """
+        """ Test adding two ArrivalRates with different ids """
         # GIVEN
         arrival_rates1 = ArrivalRates(id_to_arrival_rates={"1": [1000, 950], "2": [850, 700]})
         arrival_rates2 = ArrivalRates(id_to_arrival_rates={"1": [642, 230], "3": [600, 355]})
@@ -106,7 +106,7 @@ class TestOperations(unittest.TestCase):
             # THEN an assertion should be raised
 
     def test_add_different_lengths(self) -> None:
-        """ Test initializing ArrivalRates object with correct input """
+        """ Test adding two ArrivalRates with different number of rates """
         # GIVEN
         arrival_rates1 = ArrivalRates(id_to_arrival_rates={"1": [1000, 950], "2": [850, 700]})
         arrival_rates2 = ArrivalRates(id_to_arrival_rates={"1": [642, 230], "2": [600, 355, 800]})
