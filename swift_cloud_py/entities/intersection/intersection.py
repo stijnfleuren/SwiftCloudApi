@@ -97,19 +97,19 @@ class Intersection:
         # validate all inputs
         :return: - (raises error if validation does not pass)
         """
-        assert isinstance(self.signalgroups, list)
+        assert isinstance(self.signalgroups, list), "signalgroups should be a list of SignalGroup objects"
         for signalgroup in self.signalgroups:
             assert isinstance(signalgroup, SignalGroup), "signalgroups should be a list of SignalGroup objects"
-        assert isinstance(self.conflicts, list)
+        assert isinstance(self.conflicts, list), "conflicts should be a list of Conflict objects"
         for conflict in self.conflicts:
             assert isinstance(conflict, Conflict), "conflicts should be a list of Conflict objects"
-        assert isinstance(self.sync_starts, list)
+        assert isinstance(self.sync_starts, list), "sync_start should be a list of SyncStart objects"
         for sync_start in self.sync_starts:
             assert isinstance(sync_start, SyncStart), "sync_start should be a list of SyncStart objects"
-        assert isinstance(self.coordinations, list)
+        assert isinstance(self.coordinations, list), "coordination should be a list of Coordination objects"
         for coordination in self.coordinations:
             assert isinstance(coordination, Coordination), "coordination should be a list of Coordination objects"
-        assert isinstance(self.prestarts, list)
+        assert isinstance(self.prestarts, list), "prestart should be a list of PreStart objects"
         for prestart in self.prestarts:
             assert isinstance(prestart, PreStart), "prestart should be a list of PreStart objects"
 
