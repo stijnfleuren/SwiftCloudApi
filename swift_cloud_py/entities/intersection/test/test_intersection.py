@@ -164,7 +164,7 @@ class TestJsonConversion(unittest.TestCase):
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
 
-        # WHEN an unknown id is used in a relations between signal groups
+        # WHEN
         intersection = Intersection(**input_dict)
 
         # THEN converting back and forth should in the end give the same result
