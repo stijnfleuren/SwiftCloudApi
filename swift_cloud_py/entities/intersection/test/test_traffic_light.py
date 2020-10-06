@@ -8,11 +8,11 @@ class TestInputValidation(unittest.TestCase):
 
     @staticmethod
     def get_default_inputs() -> Dict:
-        """ function to get default (valid) inputs for TrafficLight() """
+        """ Function to get default (valid) inputs for TrafficLight() """
         return dict(capacity=1800, lost_time=1, weight=1, max_saturation=1)
 
     def test_successful_validation(self) -> None:
-        """ test initializing Intersection object with correct input """
+        """ Test initializing Intersection object with correct input """
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
 
@@ -22,7 +22,7 @@ class TestInputValidation(unittest.TestCase):
         # THEN no exception should occur
 
     def test_wrong_type(self) -> None:
-        """ test providing the wrong type of """
+        """ Test providing the wrong type """
 
         # WHEN an input contains the wrong data type
         for key in TestInputValidation.get_default_inputs():
@@ -37,7 +37,7 @@ class TestInputValidation(unittest.TestCase):
                     # THEN an error should be raised
 
     def test_negativity(self) -> None:
-        """ test providing the wrong type of """
+        """ Test providing negative values for capacity, lost_time, weight and max_saturation"""
 
         # WHEN an input contains the wrong data type
         for key in TestInputValidation.get_default_inputs():
@@ -52,7 +52,7 @@ class TestInputValidation(unittest.TestCase):
                     # THEN an error should be raised
 
     def test_zero(self) -> None:
-        """ test providing the wrong type of """
+        """ Test providing zero values for capacity and max_saturation """
 
         # WHEN an input contains the wrong data type
         for key in ["capacity", "max_saturation"]:
@@ -69,6 +69,7 @@ class TestInputValidation(unittest.TestCase):
 
 class TestJsonConversion(unittest.TestCase):
     def test_json_back_and_forth(self) -> None:
+        """ Test converting back and forth from and to json """
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
 
