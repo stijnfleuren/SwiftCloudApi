@@ -12,7 +12,7 @@ class TestInputValidation(unittest.TestCase):
         return dict(capacity=1800, lost_time=1, weight=1, max_saturation=1)
 
     def test_successful_validation(self) -> None:
-        """ Test initializing Intersection object with correct input """
+        """ Test initializing TrafficLight object with correct input """
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
 
@@ -24,13 +24,12 @@ class TestInputValidation(unittest.TestCase):
     def test_wrong_type(self) -> None:
         """ Test providing the wrong type """
 
-        # WHEN an input contains the wrong data type
         for key in TestInputValidation.get_default_inputs():
             with self.subTest(f"Wrong type in input '{key}'"):
                 # GIVEN
                 input_dict = TestInputValidation.get_default_inputs()
                 input_dict[key] = 'string'  # all arguments are numbers
-                with self.assertRaises(TypeError):
+                with self.assertRaises(ValueError):
                     # WHEN initializing the traffic light
                     TrafficLight(**input_dict)
 
@@ -39,7 +38,6 @@ class TestInputValidation(unittest.TestCase):
     def test_negativity(self) -> None:
         """ Test providing negative values for capacity, lost_time, weight and max_saturation"""
 
-        # WHEN an input contains the wrong data type
         for key in TestInputValidation.get_default_inputs():
             with self.subTest(f"Wrong type in input '{key}'"):
                 # GIVEN
@@ -54,7 +52,6 @@ class TestInputValidation(unittest.TestCase):
     def test_zero(self) -> None:
         """ Test providing zero values for capacity and max_saturation """
 
-        # WHEN an input contains the wrong data type
         for key in ["capacity", "max_saturation"]:
             with self.subTest(f"Wrong type in input '{key}'"):
                 # GIVEN

@@ -28,7 +28,7 @@ class Intersection:
         self.sync_starts = sync_starts if sync_starts else []
         self.coordinations = coordinations if coordinations else []
         self.prestarts = prestarts if prestarts else []
-        self.validate()
+        self._validate()
 
     @property
     def other_relations(self) -> List[Union[SyncStart, Coordination, PreStart]]:
@@ -92,7 +92,7 @@ class Intersection:
         # ignored).
         return Intersection.from_json(intersection_dict=json_dict["intersection"])
 
-    def validate(self) -> None:
+    def _validate(self) -> None:
         """
         # validate all inputs
         :return: - (raises error if validation does not pass)
