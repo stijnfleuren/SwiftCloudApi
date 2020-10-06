@@ -1,7 +1,7 @@
 import unittest
 from typing import Dict
 
-from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart
+from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Coordination
 
 
 class TestConflictInputValidation(unittest.TestCase):
@@ -102,7 +102,7 @@ class TestSyncStartInputValidation(unittest.TestCase):
         # THEN no exception should occur
 
     def test_wrong_datatype_for_ids(self) -> None:
-        """ Test giving wrong SyncStart to Conflict for ids """
+        """ Test giving wrong datatype to SyncStart for ids """
         # GIVEN
         input_dict = TestSyncStartInputValidation.get_default_inputs()
         input_dict["from_id"] = 1
@@ -116,7 +116,7 @@ class TestSyncStartInputValidation(unittest.TestCase):
         self.assertSetEqual({sync_start.from_id, sync_start.to_id}, {"1", "2"})
 
     def test_non_unique_ids(self) -> None:
-        """ Test giving two identical ids to initialize a Conflict """
+        """ Test giving two identical ids to initialize a SyncStart """
         # GIVEN
         input_dict = TestSyncStartInputValidation.get_default_inputs()
         input_dict["from_id"] = "1"
@@ -140,3 +140,62 @@ class TestSyncStartJsonConversion(unittest.TestCase):
         sync_start_dict = sync_start.to_json()
         sync_start_from_json = SyncStart.from_json(sync_start_dict=sync_start_dict)
         self.assertDictEqual(sync_start_dict, sync_start_from_json.to_json())
+
+
+class TestCoordinationInputValidation(unittest.TestCase):
+
+    @staticmethod
+    def get_default_inputs() -> Dict:
+        """ function to get default (valid) inputs for Coordination() """
+        return dict(from_id="1", to_id="2", coordination_time=10)
+
+    def test_successful_validation(self) -> None:
+        """ Test initializing Coordination object with correct input """
+        # GIVEN
+        input_dict = TestCoordinationInputValidation.get_default_inputs()
+
+        # WHEN
+        Coordination(**input_dict)
+
+        # THEN no exception should occur
+
+    def test_wrong_datatype_for_ids(self) -> None:
+        """ Test giving wrong datatype to Coordionation for ids """
+        # GIVEN
+        input_dict = TestCoordinationInputValidation.get_default_inputs()
+        input_dict["from_id"] = 1
+        input_dict["to_id"] = 2
+
+        # WHEN initializing the coordination
+        coordination = Coordination(**input_dict)
+
+        # Should not give an error (datatype is converted to string); note that from_id and to_id might have swapped;
+        # this is done to store this SyncStart in an unambiguous manner.
+        self.assertEqual(coordination.from_id, "1")
+        self.assertEqual(coordination.to_id, "2")
+
+    def test_non_unique_ids(self) -> None:
+        """ Test giving two identical ids to initialize a Coordination """
+        # GIVEN
+        input_dict = TestCoordinationInputValidation.get_default_inputs()
+        input_dict["from_id"] = "1"
+        input_dict["to_id"] = "1"
+        with self.assertRaises(AssertionError):
+            Coordination(**input_dict)
+
+        # THEN an error should be raised
+
+
+class TestCoordinationJsonConversion(unittest.TestCase):
+    def test_json_back_and_forth(self) -> None:
+        """ test converting back and forth from and to json """
+        # GIVEN
+        input_dict = TestCoordinationInputValidation.get_default_inputs()
+
+        # WHEN
+        coordination = Coordination(**input_dict)
+
+        # THEN converting back and forth should in the end give the same result
+        coordination_dict = coordination.to_json()
+        coordination_from_json = Coordination.from_json(coordination_dict=coordination_dict)
+        self.assertDictEqual(coordination_dict, coordination_from_json.to_json())
