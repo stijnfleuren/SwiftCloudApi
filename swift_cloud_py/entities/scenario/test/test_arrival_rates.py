@@ -48,7 +48,6 @@ class TestInputValidation(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_arrival_rates"]["3"] = 1  # rates is not a list
 
-
         with self.assertRaises(AssertionError):
             # WHEN initializing the arrival rates
             ArrivalRates(**input_dict)
@@ -102,7 +101,7 @@ class TestOperations(unittest.TestCase):
 
         with self.assertRaises(AssertionError):
             # WHEN adding to rates with different ids
-            arrival_rates1 += arrival_rates2
+            arrival_rates1 + arrival_rates2
 
             # THEN an assertion should be raised
 
@@ -114,7 +113,7 @@ class TestOperations(unittest.TestCase):
 
         with self.assertRaises(AssertionError):
             # WHEN adding to rates with different ids
-            arrival_rates1 += arrival_rates2
+            arrival_rates1 + arrival_rates2
 
             # THEN an assertion should be raised
 
