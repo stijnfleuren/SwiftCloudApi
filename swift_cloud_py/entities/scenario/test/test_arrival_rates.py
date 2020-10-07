@@ -22,6 +22,7 @@ class TestInputValidation(unittest.TestCase):
         # THEN no error should be raised
 
     def test_no_dict(self) -> None:
+        """ Test providing no dictionary for id_to_arrival_rates"""
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_arrival_rates"] = 1
@@ -33,6 +34,7 @@ class TestInputValidation(unittest.TestCase):
             # THEN an error should be raised
 
     def test_no_string_values(self) -> None:
+        """ Test providing no string as id in id_to_arrival_rates"""
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_arrival_rates"][1] = [1, 2]  # add value (1) which is not a string
@@ -44,6 +46,7 @@ class TestInputValidation(unittest.TestCase):
             # THEN an error should be raised
 
     def test_no_list_for_rates(self) -> None:
+        """ Test providing no list as value in id_to_arrival_rates"""
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_arrival_rates"]["3"] = 1  # rates is not a list
@@ -55,6 +58,7 @@ class TestInputValidation(unittest.TestCase):
             # THEN an error should be raised
 
     def test_rate_no_number(self) -> None:
+        """ Test providing no numbers for the rates """
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_arrival_rates"]["3"] = [1, "3"]  # rates is not a list of numbers
