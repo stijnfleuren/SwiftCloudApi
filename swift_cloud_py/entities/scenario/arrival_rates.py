@@ -14,15 +14,8 @@ class ArrivalRates:
         """
         self.id_to_arrival_rates = id_to_arrival_rates
 
-        # validate structure of id_to_arrival_rates
-        error_message = "id_to_arrival_rates should be a dictionary mapping from a signal group id (str) to " \
-                        "a list of arrival rates (List[float])"
-        assert isinstance(id_to_arrival_rates, dict), error_message
-        for _id, rates in id_to_arrival_rates.items():
-            assert isinstance(_id, str), error_message
-            assert isinstance(rates, list), error_message
-            for rate in rates:
-                assert isinstance(rate, (float, int)), error_message
+        # validate inputs
+        self._validate()
 
     def to_json(self):
         """get dictionary structure that can be stored as json with json.dumps()"""
@@ -45,9 +38,26 @@ class ArrivalRates:
 
         return ArrivalRates.from_json(arrival_rates_dict=json_dict["arrival_rates"])
 
+    def _validate(self) -> None:
+        """ Validate input arguments of ArrivalRates; raises ValueError if validation does not pass"""
+        # validate structure of id_to_arrival_rates
+        error_message = "id_to_arrival_rates should be a dictionary mapping from a signal group id (str) to " \
+                        "a list of arrival rates (List[float])"
+        if not isinstance(self.id_to_arrival_rates, dict):
+            raise ValueError(error_message)
+        for _id, rates in self.id_to_arrival_rates.items():
+            if not isinstance(_id, str):
+                raise ValueError(error_message)
+            if not isinstance(rates, list):
+                raise ValueError(error_message)
+            for rate in rates:
+                if not isinstance(rate, (float, int)):
+                    raise ValueError(error_message)
+
     def __add__(self, other: ArrivalRates):
         """ add two arrival rates """
-        assert isinstance(other, ArrivalRates), "can only add ArrivalRates object to ArrivalRates"
+        if not isinstance(other, ArrivalRates):
+            raise ArithmeticError("can only add ArrivalRates object to ArrivalRates")
         other_id_to_arrival_rates = other.id_to_arrival_rates
 
         # validate inputs
@@ -55,9 +65,10 @@ class ArrivalRates:
         other_id_to_num_rates = {_id: len(rates) for _id, rates in other_id_to_arrival_rates.items()}
         ids = {_id for _id in self.id_to_arrival_rates}
         id_to_num_rates = {_id: len(rates) for _id, rates in self.id_to_arrival_rates.items()}
-        assert ids == other_ids, "when adding two ArrivalRates they should have the same ids"
-        assert id_to_num_rates == other_id_to_num_rates, \
-            "when adding two ArrivalRates all rates should have equal length"
+        if not ids == other_ids:
+            raise ArithmeticError("when adding two ArrivalRates they should have the same ids")
+        if not id_to_num_rates == other_id_to_num_rates:
+            raise ArithmeticError("when adding two ArrivalRates all rates should have equal length")
 
         id_to_arrival_rates = \
             {id_: [rate + other_rate for rate, other_rate in zip(rates, other_id_to_arrival_rates[id_])]
@@ -66,7 +77,8 @@ class ArrivalRates:
 
     def __mul__(self, factor: float):
         """ Multiply the arrival rates with a factor """
-        assert isinstance(factor, (float, int)), "can only multiply ArrivalRates object with a float"
+        if not isinstance(factor, (float, int)):
+            raise ArithmeticError("can only multiply ArrivalRates object with a float")
         id_to_arrival_rates = \
             {id_: [rate * factor for rate in rates] for id_, rates in self.id_to_arrival_rates.items()}
         return ArrivalRates(id_to_arrival_rates=id_to_arrival_rates)
