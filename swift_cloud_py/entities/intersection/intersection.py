@@ -95,24 +95,56 @@ class Intersection:
     def _validate(self) -> None:
         """
         validate the arguments provided to this object
-        :return: - (raises error if validation does not pass)
+        :return: - (raises ValueError or TypeError if validation does not pass)
         """
-        assert isinstance(self.signalgroups, list), "signalgroups should be a list of SignalGroup objects"
-        for signalgroup in self.signalgroups:
-            assert isinstance(signalgroup, SignalGroup), "signalgroups should be a list of SignalGroup objects"
-        assert isinstance(self.conflicts, list), "conflicts should be a list of Conflict objects"
-        for conflict in self.conflicts:
-            assert isinstance(conflict, Conflict), "conflicts should be a list of Conflict objects"
-        assert isinstance(self.sync_starts, list), "sync_start should be a list of SyncStart objects"
-        for sync_start in self.sync_starts:
-            assert isinstance(sync_start, SyncStart), "sync_start should be a list of SyncStart objects"
-        assert isinstance(self.coordinations, list), "coordination should be a list of Coordination objects"
-        for coordination in self.coordinations:
-            assert isinstance(coordination, Coordination), "coordination should be a list of Coordination objects"
-        assert isinstance(self.prestarts, list), "prestart should be a list of PreStart objects"
-        for prestart in self.prestarts:
-            assert isinstance(prestart, PreStart), "prestart should be a list of PreStart objects"
+        self._validate_types()
+        self._validate_ids()
+        self._validate_relations_per_pair()
+        self._validate_setup_times()
 
+    def _validate_types(self):
+        """
+        validate the datatypes of the arguments
+        """
+        # signalgroups
+        if not isinstance(self.signalgroups, list):
+            raise TypeError("signalgroups should be a list of SignalGroup objects")
+        for signalgroup in self.signalgroups:
+            if not isinstance(signalgroup, SignalGroup):
+                raise TypeError("signalgroups should be a list of SignalGroup objects")
+
+        # conflicts
+        if not isinstance(self.conflicts, list):
+            raise TypeError("conflicts should be a list of Conflict objects")
+        for conflict in self.conflicts:
+            if not isinstance(conflict, Conflict):
+                raise TypeError("conflicts should be a list of Conflict objects")
+
+        # sync starts
+        if not isinstance(self.sync_starts, list):
+            raise TypeError("sync_start should be a list of SyncStart objects")
+        for sync_start in self.sync_starts:
+            if not isinstance(sync_start, SyncStart):
+                raise TypeError("sync_start should be a list of SyncStart objects")
+
+        # coordinations
+        if not isinstance(self.coordinations, list):
+            raise TypeError("coordination should be a list of Coordination objects")
+        for coordination in self.coordinations:
+            if not isinstance(coordination, Coordination):
+                raise TypeError("coordination should be a list of Coordination objects")
+
+        # prestarts
+        if not isinstance(self.prestarts, list):
+            raise TypeError("prestart should be a list of PreStart objects")
+        for prestart in self.prestarts:
+            if not isinstance(prestart, PreStart):
+                raise TypeError("prestart should be a list of PreStart objects")
+
+    def _validate_ids(self):
+        """
+        validate ids used in signalgroups (uniqueness) and conflicts
+        """
         # validate unique ids
         ids = [signalgroup.id for signalgroup in self.signalgroups]
         unique_ids = set(ids)
@@ -126,13 +158,6 @@ class Intersection:
             if conflict.id2 not in unique_ids:
                 raise ValueError(f"Unknown signalgoup id '{conflict.id2}' used in conflict")
 
-        # check uniqueness of the specified conflicts
-        num_conflicts = len(self.conflicts)
-        num_unique_conflicts = len({frozenset([conflict.id1, conflict.id2]) for conflict in self.conflicts})
-        if num_conflicts != num_unique_conflicts:
-            raise ValueError("Conflicts may not contain duplicate {id1, id2} pairs.")
-
-        # validate that at most one relation is specified for each pair of signal groups
         for other_relation in self.other_relations:
             if other_relation.from_id not in unique_ids:
                 raise ValueError(f"Unknown signalgoup id '{other_relation.from_id}' "
@@ -141,15 +166,24 @@ class Intersection:
                 raise ValueError(f"Unknown signalgoup id '{other_relation.to_id}' "
                                  f"used in object {other_relation.__class__}")
 
-            unique_relations = {frozenset([relation.from_id, relation.to_id])
-                                for relation in self.other_relations}
-            unique_relations = unique_relations.union(
-                {frozenset([conflict.id1, conflict.id2]) for conflict in self.conflicts})
-            num_relations = len(self.other_relations) + len(self.conflicts)
-            if num_relations != len(unique_relations):
-                raise ValueError("Not allowed to specify multiple relations "
-                                 "(conflict, syncstart, coordination, prestart) for a single signal group pair.")
+    def _validate_relations_per_pair(self):
+        # check uniqueness of the specified conflicts
+        num_conflicts = len(self.conflicts)
+        num_unique_conflicts = len({frozenset([conflict.id1, conflict.id2]) for conflict in self.conflicts})
+        if num_conflicts != num_unique_conflicts:
+            raise ValueError("Conflicts may not contain duplicate {id1, id2} pairs.")
 
+        # validate that at most one relation is specified for each pair of signal groups
+        unique_relations = {frozenset([relation.from_id, relation.to_id])
+                            for relation in self.other_relations}
+        unique_relations = unique_relations.union(
+            {frozenset([conflict.id1, conflict.id2]) for conflict in self.conflicts})
+        num_relations = len(self.other_relations) + len(self.conflicts)
+        if num_relations != len(unique_relations):
+            raise ValueError("Not allowed to specify multiple relations "
+                             "(conflict, syncstart, coordination, prestart) for a single signal group pair.")
+
+    def _validate_setup_times(self):
         # validate setup times are not too negative
         id_to_signalgroup = {signalgroup.id: signalgroup for signalgroup in self.signalgroups}
         for conflict in self.conflicts:

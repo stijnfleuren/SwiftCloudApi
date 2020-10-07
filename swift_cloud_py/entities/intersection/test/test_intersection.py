@@ -41,7 +41,7 @@ class TestInputValidation(unittest.TestCase):
                 # GIVEN
                 input_dict = TestInputValidation.get_default_inputs()
                 input_dict[key] = 10  # wrong type (not a list)
-                with self.assertRaises(AssertionError):
+                with self.assertRaises(TypeError):
                     # WHEN initializing the intersection
                     Intersection(**input_dict)
 
@@ -55,7 +55,7 @@ class TestInputValidation(unittest.TestCase):
                 # GIVEN
                 input_dict = TestInputValidation.get_default_inputs()
                 input_dict[key].append(10)  # add other object (of wrong type) to the list
-                with self.assertRaises(AssertionError):
+                with self.assertRaises(TypeError):
                     # WHEN initializing the intersection
                     Intersection(**input_dict)
 
