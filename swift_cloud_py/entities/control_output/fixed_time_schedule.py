@@ -87,6 +87,8 @@ class GreenYellowInterval:
         # by converting to the correct data type we ensure correct types are used
         self.start_greenyellow = float(start_greenyellow)
         self.end_greenyellow = float(end_greenyellow)
+        assert start_greenyellow >= 0, "strart_greenyellow should be non-negative"
+        assert end_greenyellow >= 0, "end_greenyellow should be non-negative"
 
     def to_json(self) -> List:
         """get json serializable structure that can be stored as json with json.dumps()"""
