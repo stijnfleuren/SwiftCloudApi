@@ -17,19 +17,28 @@ class QueueLengths:
         """
         self.id_to_queue_lengths = id_to_queue_lengths
 
-        # validate structure of id_to_arrival_rates
-        error_message = "id_to_queue_lengths should be a dictionary mapping from a signal group id (str) to " \
-                        "a list of queue_lengths (List[float])"
-        assert isinstance(id_to_queue_lengths, dict), error_message
-        for _id, rates in id_to_queue_lengths.items():
-            assert isinstance(_id, str), error_message
-            assert isinstance(rates, list), error_message
-            for rate in rates:
-                assert isinstance(rate, (float, int)), error_message
+        # raises ValueError if validation does not succeed
+        self._validate()
 
     def to_json(self):
         """get dictionary structure that can be stored as json with json.dumps()"""
         return self.id_to_queue_lengths
+
+    def _validate(self) -> None:
+        """ Validate input arguments of QueueLengths; raises ValueError if validation does not pass"""
+        # validate structure of id_to_queue_lengths
+        error_message = "id_to_queue_lengths should be a dictionary mapping from a signal group id (str) to " \
+                        "a list of queue lengths (List[float])"
+        if not isinstance(self.id_to_queue_lengths, dict):
+            raise ValueError(error_message)
+        for _id, rates in self.id_to_queue_lengths.items():
+            if not isinstance(_id, str):
+                raise ValueError(error_message)
+            if not isinstance(rates, list):
+                raise ValueError(error_message)
+            for rate in rates:
+                if not isinstance(rate, (float, int)):
+                    raise ValueError(error_message)
 
     @staticmethod
     def from_json(queue_lengths_dict) -> QueueLengths:
@@ -38,6 +47,7 @@ class QueueLengths:
 
     def __truediv__(self, time: float) -> ArrivalRates:
         """ divide the queue length by a time interval ('other' in hours) to get a rate in PCE/h"""
-        assert isinstance(time, (int, float)), "can divide queue_lengths rates only by float"
+        if not isinstance(time, (int, float)):
+            raise ArithmeticError("can divide queue_lengths rates only by float")
         id_to_arrival_rates = {id_: [rate/time for rate in rates] for id_, rates in self.id_to_queue_lengths.items()}
         return ArrivalRates(id_to_arrival_rates=id_to_arrival_rates)

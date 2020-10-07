@@ -27,7 +27,7 @@ class TestInputValidation(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_queue_lengths"] = 1
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             # WHEN initializing the queue lengths
             QueueLengths(**input_dict)
 
@@ -38,7 +38,7 @@ class TestInputValidation(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_queue_lengths"][1] = [1, 2]  # add value (1) which is not a string
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             # WHEN initializing the queue lengths
             QueueLengths(**input_dict)
 
@@ -49,7 +49,7 @@ class TestInputValidation(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_queue_lengths"]["3"] = 1  # rates is not a list
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             # WHEN initializing the queue lengths
             QueueLengths(**input_dict)
 
@@ -60,7 +60,7 @@ class TestInputValidation(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_queue_lengths"]["3"] = [1, "3"]  # rates is not a list of numbers
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             # WHEN initializing the queue lengths
             QueueLengths(**input_dict)
 
@@ -87,7 +87,7 @@ class TestOperations(unittest.TestCase):
         # GIVEN
         queue_lengths = QueueLengths(id_to_queue_lengths={"1": [1000, 950], "2": [850, 700]})
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ArithmeticError):
             # WHEN adding to rates with different ids
             queue_lengths / "str"
 
