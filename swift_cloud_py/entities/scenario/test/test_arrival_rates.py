@@ -87,7 +87,7 @@ class TestOperations(unittest.TestCase):
 
         with self.assertRaises(ArithmeticError):
             # WHEN
-            arrival_rates1 *= "string"
+            arrival_rates1 * "string"
 
             # THEN an exception should be raised
 
