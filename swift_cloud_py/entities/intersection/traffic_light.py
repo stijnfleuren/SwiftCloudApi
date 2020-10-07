@@ -52,8 +52,14 @@ class TrafficLight:
         validate the arguments provided to this object
         :return: - (raises error if validation does not pass)
         """
-        if self.max_saturation is not None:
-            assert self.max_saturation > 0.0
-        assert self.weight >= 0.0
-        assert self.capacity > 0.0
-        assert self.lost_time >= 0.0
+        if self.max_saturation is not None and self.max_saturation <= 0.0:
+            raise ValueError("max_saturation must be None or a positive float")
+
+        if not self.weight >= 0.0:
+            raise ValueError("weight must be a non-negative float")
+
+        if not self.capacity > 0.0:
+            raise ValueError("capacity must be a positive float")
+
+        if not self.lost_time >= 0.0:
+            raise ValueError("lost_time must be a non-negative float")

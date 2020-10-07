@@ -43,7 +43,7 @@ class TestInputValidation(unittest.TestCase):
                 # GIVEN
                 input_dict = TestInputValidation.get_default_inputs()
                 input_dict[key] = -0.1  # all arguments are non-negative numbers
-                with self.assertRaises(AssertionError):
+                with self.assertRaises(ValueError):
                     # WHEN initializing the traffic light
                     TrafficLight(**input_dict)
 
@@ -57,7 +57,7 @@ class TestInputValidation(unittest.TestCase):
                 # GIVEN
                 input_dict = TestInputValidation.get_default_inputs()
                 input_dict[key] = 0.0  # argument should be positive
-                with self.assertRaises(AssertionError):
+                with self.assertRaises(ValueError):
                     # WHEN initializing the traffic light
                     TrafficLight(**input_dict)
 
