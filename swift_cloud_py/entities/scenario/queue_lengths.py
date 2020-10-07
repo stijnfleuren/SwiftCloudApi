@@ -31,13 +31,13 @@ class QueueLengths:
                         "a list of queue lengths (List[float])"
         if not isinstance(self.id_to_queue_lengths, dict):
             raise ValueError(error_message)
-        for _id, rates in self.id_to_queue_lengths.items():
+        for _id, queue_lengths in self.id_to_queue_lengths.items():
             if not isinstance(_id, str):
                 raise ValueError(error_message)
-            if not isinstance(rates, list):
+            if not isinstance(queue_lengths, list):
                 raise ValueError(error_message)
-            for rate in rates:
-                if not isinstance(rate, (float, int)):
+            for queue_length in queue_lengths:
+                if not isinstance(queue_length, (float, int)):
                     raise ValueError(error_message)
 
     @staticmethod
