@@ -69,7 +69,7 @@ class TestInputValidation(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["min_nr"] = 0
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             # WHEN initializing the signal group
             SignalGroup(**input_dict)
 
@@ -83,7 +83,7 @@ class TestInputValidation(unittest.TestCase):
                 # GIVEN
                 input_dict = TestInputValidation.get_default_inputs()
                 input_dict[key] = -0.1  # values should be non-negative
-                with self.assertRaises(AssertionError):
+                with self.assertRaises(ValueError):
                     # WHEN initializing the SignalGroup
                     SignalGroup(**input_dict)
 
@@ -97,7 +97,7 @@ class TestInputValidation(unittest.TestCase):
                 # GIVEN
                 input_dict = TestInputValidation.get_default_inputs()
                 input_dict[key] = 0.0  # values should be non-negative
-                with self.assertRaises(AssertionError):
+                with self.assertRaises(ValueError):
                     # WHEN initializing the SignalGroup
                     SignalGroup(**input_dict)
 
@@ -108,7 +108,7 @@ class TestInputValidation(unittest.TestCase):
 
         for min_var, max_var in [("min_greenyellow", "max_greenyellow"), ("min_red", "max_red"), ("min_nr", "max_nr")]:
             with self.subTest(f"{max_var} smaller than {min_var}"):
-                with self.assertRaises(AssertionError):
+                with self.assertRaises(ValueError):
                     # GIVEN
                     input_dict = TestInputValidation.get_default_inputs()
                     input_dict[min_var] = 2.2  # all arguments are numbers
@@ -124,7 +124,7 @@ class TestInputValidation(unittest.TestCase):
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["traffic_lights"] = "wrong type"  # all arguments are non-negative numbers
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             # WHEN initializing the signal group
             SignalGroup(**input_dict)
 
@@ -136,7 +136,7 @@ class TestInputValidation(unittest.TestCase):
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["traffic_lights"][0] = "wrong type"  # all arguments are non-negative numbers
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             # WHEN initializing the signal group
             SignalGroup(**input_dict)
 

@@ -57,16 +57,27 @@ class SignalGroup:
     def _validate(self) -> None:
         """
         validate the arguments provided to this object
-        :return: - (raises error if validation does not pass)
+        :return: - (raises ValueError if validation does not pass)
         """
-        assert isinstance(self.traffic_lights, list), "traffic_lights should be a list of TrafficLight objects"
+        if not isinstance(self.traffic_lights, list):
+            raise ValueError("traffic_lights should be a list of TrafficLight objects")
         for traffic_light in self.traffic_lights:
-            assert isinstance(traffic_light,
-                              TrafficLight), "traffic_lights should be a list of TrafficLight objects"
-        assert self.min_greenyellow >= 0
-        assert 0 < self.max_greenyellow >= self.min_greenyellow
-        assert self.min_red >= 0
-        assert 0 < self.max_red >= self.min_red
-        assert self.min_nr >= 1
-        assert int(self.max_nr) >= int(self.min_nr)
+            if not isinstance(traffic_light, TrafficLight):
+                raise ValueError("traffic_lights should be a list of TrafficLight objects")
+
+        if not self.min_greenyellow >= 0:
+            raise ValueError("min_greenyellow must be a non-negative number")
+        if not 0 < self.max_greenyellow >= self.min_greenyellow:
+            raise ValueError("max_greenyellow must be a positive number exceeding (or equal to) min_greenyellow")
+
+        if not self.min_red >= 0:
+            raise ValueError("min_red must be a non-negative number")
+        if not 0 < self.max_red >= self.min_red:
+            raise ValueError("max_red must be a positive number exceeding (or equal to) min_red")
+
+        if not self.min_nr >= 1:
+            raise ValueError("min_nr must be a positive integer")
+        if not int(self.max_nr) >= int(self.min_nr):
+            raise ValueError("max_nr must exceed or equal min_nr")
+
 
