@@ -26,7 +26,7 @@ class TestInputValidation(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_arrival_rates"] = 1
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             # WHEN initializing the arrival rates
             ArrivalRates(**input_dict)
 
@@ -37,7 +37,7 @@ class TestInputValidation(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_arrival_rates"][1] = [1, 2]  # add value (1) which is not a string
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             # WHEN initializing the arrival rates
             ArrivalRates(**input_dict)
 
@@ -48,7 +48,7 @@ class TestInputValidation(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_arrival_rates"]["3"] = 1  # rates is not a list
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             # WHEN initializing the arrival rates
             ArrivalRates(**input_dict)
 
@@ -59,7 +59,7 @@ class TestInputValidation(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
         input_dict["id_to_arrival_rates"]["3"] = [1, "3"]  # rates is not a list of numbers
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             # WHEN initializing the arrival rates
             ArrivalRates(**input_dict)
 
@@ -80,6 +80,17 @@ class TestOperations(unittest.TestCase):
         self.assertListEqual(arrival_rates1.id_to_arrival_rates["1"], [1000 * 1.3, 950 * 1.3])
         self.assertListEqual(arrival_rates1.id_to_arrival_rates["2"], [850 * 1.3, 700 * 1.3])
 
+    def test_multiply_wrong_type(self) -> None:
+        """ Test multiplying ArrivalRates with non-numeric value """
+        # GIVEN
+        arrival_rates1 = ArrivalRates(id_to_arrival_rates={"1": [1000, 950], "2": [850, 700]})
+
+        with self.assertRaises(ArithmeticError):
+            # WHEN
+            arrival_rates1 *= "string"
+
+            # THEN an exception should be raised
+
     def test_add(self) -> None:
         """ Test adding two ArrivalRates """
         # GIVEN
@@ -99,7 +110,7 @@ class TestOperations(unittest.TestCase):
         arrival_rates1 = ArrivalRates(id_to_arrival_rates={"1": [1000, 950], "2": [850, 700]})
         arrival_rates2 = ArrivalRates(id_to_arrival_rates={"1": [642, 230], "3": [600, 355]})
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ArithmeticError):
             # WHEN adding to rates with different ids
             arrival_rates1 + arrival_rates2
 
@@ -111,7 +122,7 @@ class TestOperations(unittest.TestCase):
         arrival_rates1 = ArrivalRates(id_to_arrival_rates={"1": [1000, 950], "2": [850, 700]})
         arrival_rates2 = ArrivalRates(id_to_arrival_rates={"1": [642, 230], "2": [600, 355, 800]})
 
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ArithmeticError):
             # WHEN adding to rates with different ids
             arrival_rates1 + arrival_rates2
 
