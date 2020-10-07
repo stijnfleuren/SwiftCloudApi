@@ -52,7 +52,7 @@ class TestConflictInputValidation(unittest.TestCase):
         input_dict = TestConflictInputValidation.get_default_inputs()
         input_dict["id1"] = "1"
         input_dict["id2"] = "1"
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             Conflict(**input_dict)
 
         # THEN an error should be raised
@@ -63,7 +63,7 @@ class TestConflictInputValidation(unittest.TestCase):
         input_dict = TestConflictInputValidation.get_default_inputs()
         input_dict["setup12"] = 0
         input_dict["setup21"] = -1
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             Conflict(**input_dict)
 
         # THEN an error should be raised
@@ -121,7 +121,7 @@ class TestSyncStartInputValidation(unittest.TestCase):
         input_dict = TestSyncStartInputValidation.get_default_inputs()
         input_dict["from_id"] = "1"
         input_dict["to_id"] = "1"
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             SyncStart(**input_dict)
 
         # THEN an error should be raised
@@ -179,7 +179,7 @@ class TestCoordinationInputValidation(unittest.TestCase):
         input_dict = TestCoordinationInputValidation.get_default_inputs()
         input_dict["from_id"] = "1"
         input_dict["to_id"] = "1"
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             Coordination(**input_dict)
 
         # THEN an error should be raised
@@ -237,7 +237,7 @@ class TestPreStartInputValidation(unittest.TestCase):
         input_dict = TestPreStartInputValidation.get_default_inputs()
         input_dict["from_id"] = "1"
         input_dict["to_id"] = "1"
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             PreStart(**input_dict)
 
         # THEN an error should be raised
@@ -248,7 +248,7 @@ class TestPreStartInputValidation(unittest.TestCase):
         input_dict = TestPreStartInputValidation.get_default_inputs()
         input_dict["min_prestart"] = 20
         input_dict["max_prestart"] = 10
-        with self.assertRaises(AssertionError):
+        with self.assertRaises(ValueError):
             PreStart(**input_dict)
 
         # THEN an error should be raised

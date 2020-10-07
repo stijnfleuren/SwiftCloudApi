@@ -19,8 +19,9 @@ class Conflict:
         self.id2 = str(id2)
         self.setup12 = float(setup12)  # defined as time from end gy of sg with id1 to start gy of sg with id2
         self.setup21 = float(setup21)
-        assert self.id1 != self.id2, "ids of conflict must be different"
-        assert setup12 + setup21 >= 0, "setup12+setup21 must be non-negative"
+
+        # validate values of arguments
+        self._validate()
 
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
@@ -33,6 +34,13 @@ class Conflict:
                         id2=conflict_dict["id2"],
                         setup12=conflict_dict["setup12"],
                         setup21=conflict_dict["setup21"])
+
+    def _validate(self):
+        """ Validate input arguments of Confict """
+        if not self.id1 != self.id2:
+            raise ValueError("ids of conflict must be different")
+        if not self.setup12 + self.setup21 >= 0:
+            raise ValueError("setup12+setup21 must be non-negative")
 
 
 class SyncStart:
@@ -53,7 +61,7 @@ class SyncStart:
         if self.from_id < self.to_id:
             self.to_id, self.from_id = self.from_id, self.to_id
 
-        assert self.from_id != self.to_id, "ids of SyncStart must be different"
+        self._validate()
 
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
@@ -68,6 +76,11 @@ class SyncStart:
             "trying to load SyncStart from dictionary, but the provided dictionary is not a synchronous start!"
         return SyncStart(from_id=sync_start_dict["from_id"],
                          to_id=sync_start_dict["to_id"])
+
+    def _validate(self):
+        """ Validate input arguments of SyncStart """
+        if not self.from_id != self.to_id:
+            raise ValueError("ids of sync-start must be different")
 
 
 class Coordination:
@@ -86,7 +99,9 @@ class Coordination:
         self.from_id = str(from_id)
         self.to_id = str(to_id)
         self.coordination_time = float(coordination_time)
-        assert self.from_id != self.to_id, "ids of Coordination must be different"
+
+        # validate values of arguments
+        self._validate()
 
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
@@ -102,6 +117,11 @@ class Coordination:
         return Coordination(from_id=coordination_dict["from_id"],
                             to_id=coordination_dict["to_id"],
                             coordination_time=coordination_dict["min_time"])
+
+    def _validate(self):
+        """ Validate input arguments of Coorination """
+        if not self.from_id != self.to_id:
+            raise ValueError("ids of coordination must be different")
 
 
 class PreStart:
@@ -121,8 +141,9 @@ class PreStart:
         self.to_id = str(to_id)
         self.min_prestart = float(min_prestart)
         self.max_prestart = float(max_prestart)
-        assert self.from_id != self.to_id, "ids of Prestart must be different"
-        assert self.max_prestart >= self.min_prestart, "max_prestart should exceed (or equal) min_prestart"
+
+        # validate values of arguments
+        self._validate()
 
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
@@ -138,3 +159,11 @@ class PreStart:
                         to_id=pre_start_dict["to_id"],
                         min_prestart=pre_start_dict["min_time"],
                         max_prestart=pre_start_dict["max_time"])
+
+    def _validate(self):
+        """ Validate input arguments of PreStart """
+        if not self.from_id != self.to_id:
+            raise ValueError("ids of PreStart must be different")
+
+        if not self.max_prestart >= self.min_prestart:
+            raise ValueError("max_prestart should exceed (or equal) min_prestart")
