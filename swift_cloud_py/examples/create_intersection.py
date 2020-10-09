@@ -70,4 +70,5 @@ def create_intersection_and_optimize():
 
 
 if __name__ == "__main__":
+    logging.getLogger().setLevel(logging.INFO)
     create_intersection_and_optimize()

@@ -25,8 +25,7 @@ def load_from_smd_and_run():
     """
     logging.info(f"Running example '{os.path.basename(__file__)}'")
     # absolute path to .json file that has been exported from swift mobility desktop
-    root_dir = os.path.abspath(os.path.join(os.path.abspath(__file__), os.pardir, os.pardir))
-    smd_export = os.path.join(root_dir, "examples", "example_smd_export.json")
+    smd_export = os.path.join(os.path.join(os.path.abspath(__file__), os.pardir), "example_smd_export.json")
 
     # retrieve the json structure from the file
     with open(smd_export, "r") as f:
@@ -55,4 +54,5 @@ def load_from_smd_and_run():
 
 
 if __name__ == "__main__":
+    logging.getLogger().setLevel(logging.INFO)
     load_from_smd_and_run()
