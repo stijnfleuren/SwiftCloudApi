@@ -63,8 +63,8 @@ class Authentication:
             if not has_internet_connection():
                 raise NoInternetConnectionException
             elif r.status_code == 401:
-                raise UnauthorizedException("Access was denied; check if the environment variables 'smc_api_key' and"
-                                            "smc_secret_key' are correctly set. If still not working, send "
+                raise UnauthorizedException("Access was denied; check if the environment variables 'smc_api_key' and "
+                                            "'smc_secret_key' are correctly set. If still not working, send "
                                             "a mail to cloud_api@swiftmobility.eu")
             elif r.status_code == 400:
                 # error status_codes:

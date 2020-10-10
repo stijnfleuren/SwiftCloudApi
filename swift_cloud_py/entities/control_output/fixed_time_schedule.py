@@ -78,9 +78,10 @@ class FixedTimeSchedule:
         if interval.end_greenyellow > self.period:
             raise ValueError("end_greenyellow may not exceed period duration")
 
-    def _validate_not_overlapping_and_sorted(self, intervals: List[GreenYellowInterval]):
+    @staticmethod
+    def _validate_not_overlapping_and_sorted(intervals: List[GreenYellowInterval]):
         """validate if the greenyellowintervals of one signal group are not overlapping or not in the correct order"""
-        first_interval = min(intervals, key=lambda interval: interval.start_greenyellow)
+        first_interval = min(intervals, key=lambda _interval: _interval.start_greenyellow)
         index_first_interval = intervals.index(first_interval)
         # ensure that the greenyellow interval that starts first is also first
         intervals_sorted = intervals[index_first_interval:] + intervals[:index_first_interval]
@@ -144,7 +145,6 @@ class FixedTimeSchedule:
                 return False
 
         return True
-
 
     def __str__(self) -> str:
         """string representation of object"""

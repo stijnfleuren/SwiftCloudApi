@@ -34,6 +34,7 @@ class GreenYellowPhase:
 
 class Phase:
     def __init__(self, greenyellow_phases: List[GreenYellowPhase]) -> None:
+        """A phase represents a number of greenyellow intervals that (may) occur at the same time"""
         self.greenyellow_phases = greenyellow_phases
 
         self._validate()
@@ -73,6 +74,8 @@ class Phase:
 
 class PhaseDiagram:
     def __init__(self, phases: List[Phase]) -> None:
+        """A phasediagram is a sequence of periodically repeating Phases; a phase diagram specifies the sequence in
+        which the signal groups receive a greenyellow interval. """
         self.phases = phases
 
         self._validate()
