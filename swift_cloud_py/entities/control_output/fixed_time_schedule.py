@@ -50,7 +50,8 @@ class FixedTimeSchedule:
         self._validate_types()
 
         for _id, intervals in self.greenyellow_intervals.items():
-            self._validate_not_overlapping_and_sorted(intervals=intervals)
+            self._validate_correct_order(intervals=intervals)
+            self._validate_not_overlapping(intervals=intervals)
             for interval in intervals:
                 self._validate_interval_within_period(interval=interval)
 
@@ -79,8 +80,8 @@ class FixedTimeSchedule:
             raise ValueError("end_greenyellow may not exceed period duration")
 
     @staticmethod
-    def _validate_not_overlapping_and_sorted(intervals: List[GreenYellowInterval]):
-        """validate if the greenyellowintervals of one signal group are not overlapping or not in the correct order"""
+    def _validate_correct_order(intervals: List[GreenYellowInterval]):
+        """ Validate if the greenyellowintervals of one signal group are in correct order"""
         first_interval = min(intervals, key=lambda _interval: _interval.start_greenyellow)
         index_first_interval = intervals.index(first_interval)
         # ensure that the greenyellow interval that starts first is also first
@@ -95,15 +96,22 @@ class FixedTimeSchedule:
                     "order, e.g., [[10, 40], [50, 80], [80, 100]] and not [[10, 40], [80, 100], [50, 80]]")
             prev_start_greenyellow = interval.start_greenyellow
 
-        # test non-overlapping
+    def _validate_not_overlapping(self, intervals: List[GreenYellowInterval]):
+        """ Validate if the greenyellowintervals of one signal group are not overlapping"""
+        first_interval = min(intervals, key=lambda _interval: _interval.start_greenyellow)
+        index_first_interval = intervals.index(first_interval)
+        # ensure that the greenyellow interval that starts first is also first
+        intervals_sorted = intervals[index_first_interval:] + intervals[:index_first_interval]
+
         prev_time = 0
         for k, interval in enumerate(intervals_sorted):
             if interval.start_greenyellow < prev_time:
                 raise ValueError("The greenyellow intervals of a signal group must be non-overlapping")
             prev_time = interval.start_greenyellow
 
-            if (k < len(intervals_sorted) - 1 or interval.end_greenyellow >= intervals_sorted[0].start_greenyellow) \
-                    and interval.end_greenyellow < prev_time:
+            if (k < len(intervals_sorted) - 1 and interval.end_greenyellow < prev_time) or (
+                    k == len(intervals_sorted) - 1 and
+                    first_interval.start_greenyellow < interval.end_greenyellow < prev_time):
                 raise ValueError("The greenyellow intervals of a signal group must be non-overlapping")
 
             prev_time = interval.end_greenyellow

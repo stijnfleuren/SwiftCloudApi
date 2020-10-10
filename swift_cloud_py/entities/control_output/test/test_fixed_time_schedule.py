@@ -193,6 +193,25 @@ class TestFTSInputValidation(unittest.TestCase):
 
                 # THEN no error should be raised
 
+    def test_correct_order2(self) -> None:
+        """ Test providing GreenYellowInterval in the correct periodic order """
+        # GIVEN
+        input_dict = TestFTSInputValidation.get_default_inputs()
+        for first_interval in range(3):
+            with self.subTest(f"first interval={first_interval}"):
+                input_dict["greenyellow_intervals"]["id3"] = \
+                    [GreenYellowInterval(start_greenyellow=70, end_greenyellow=20),
+                     GreenYellowInterval(start_greenyellow=30, end_greenyellow=40),
+                     GreenYellowInterval(start_greenyellow=50, end_greenyellow=60)]
+                input_dict["greenyellow_intervals"]["id3"] = \
+                    input_dict["greenyellow_intervals"]["id3"][first_interval:] + \
+                    input_dict["greenyellow_intervals"]["id3"][:first_interval]
+
+                # WHEN initializing the fts
+                FixedTimeSchedule(**input_dict)
+
+                # THEN no error should be raised
+
     def test_wrong_order(self) -> None:
         """ Test providing GreenYellowInterval in the wrong periodic order """
         # GIVEN
@@ -201,6 +220,26 @@ class TestFTSInputValidation(unittest.TestCase):
             with self.subTest(f"first interval={first_interval}"):
                 input_dict["greenyellow_intervals"]["id3"] = \
                     [GreenYellowInterval(start_greenyellow=0, end_greenyellow=20),
+                     GreenYellowInterval(start_greenyellow=50, end_greenyellow=60),
+                     GreenYellowInterval(start_greenyellow=30, end_greenyellow=40)]
+                input_dict["greenyellow_intervals"]["id3"] = \
+                    input_dict["greenyellow_intervals"]["id3"][first_interval:] + \
+                    input_dict["greenyellow_intervals"]["id3"][:first_interval]
+
+                with self.assertRaises(ValueError):
+                    # WHEN initializing the fts
+                    FixedTimeSchedule(**input_dict)
+
+                    # THEN an error should be raised
+
+    def test_wrong_order2(self) -> None:
+        """ Test providing GreenYellowInterval in the wrong periodic order """
+        # GIVEN
+        input_dict = TestFTSInputValidation.get_default_inputs()
+        for first_interval in range(3):
+            with self.subTest(f"first interval={first_interval}"):
+                input_dict["greenyellow_intervals"]["id3"] = \
+                    [GreenYellowInterval(start_greenyellow=70, end_greenyellow=20),
                      GreenYellowInterval(start_greenyellow=50, end_greenyellow=60),
                      GreenYellowInterval(start_greenyellow=30, end_greenyellow=40)]
                 input_dict["greenyellow_intervals"]["id3"] = \
@@ -231,6 +270,24 @@ class TestFTSInputValidation(unittest.TestCase):
 
                 # THEN no error should be raised
 
+    def test_not_overlapping2(self) -> None:
+        """ Test providing non-overlapping GreenYellowInterval """
+        # GIVEN
+        input_dict = TestFTSInputValidation.get_default_inputs()
+        for first_interval in range(2):
+            with self.subTest(f"first interval={first_interval}"):
+                input_dict["greenyellow_intervals"]["id3"] = \
+                    [GreenYellowInterval(start_greenyellow=70, end_greenyellow=20),
+                     GreenYellowInterval(start_greenyellow=20, end_greenyellow=40)]  # at the verge of overlap
+                input_dict["greenyellow_intervals"]["id3"] = \
+                    input_dict["greenyellow_intervals"]["id3"][first_interval:] + \
+                    input_dict["greenyellow_intervals"]["id3"][:first_interval]
+
+                # WHEN initializing the fts
+                FixedTimeSchedule(**input_dict)
+
+                # THEN no error should be raised
+
     def test_overlapping(self) -> None:
         """ Test providing overlapping GreenYellowInterval """
         # GIVEN
@@ -239,6 +296,25 @@ class TestFTSInputValidation(unittest.TestCase):
             with self.subTest(f"first interval={first_interval}"):
                 input_dict["greenyellow_intervals"]["id3"] = \
                     [GreenYellowInterval(start_greenyellow=0, end_greenyellow=20),
+                     GreenYellowInterval(start_greenyellow=15, end_greenyellow=40)]
+                input_dict["greenyellow_intervals"]["id3"] = \
+                    input_dict["greenyellow_intervals"]["id3"][first_interval:] + \
+                    input_dict["greenyellow_intervals"]["id3"][:first_interval]
+
+                with self.assertRaises(ValueError):
+                    # WHEN initializing the fts
+                    FixedTimeSchedule(**input_dict)
+
+                    # THEN an error should be raised
+
+    def test_overlapping2(self) -> None:
+        """ Test providing overlapping GreenYellowInterval """
+        # GIVEN
+        input_dict = TestFTSInputValidation.get_default_inputs()
+        for first_interval in range(2):
+            with self.subTest(f"first interval={first_interval}"):
+                input_dict["greenyellow_intervals"]["id3"] = \
+                    [GreenYellowInterval(start_greenyellow=70, end_greenyellow=20),
                      GreenYellowInterval(start_greenyellow=15, end_greenyellow=40)]
                 input_dict["greenyellow_intervals"]["id3"] = \
                     input_dict["greenyellow_intervals"]["id3"][first_interval:] + \
