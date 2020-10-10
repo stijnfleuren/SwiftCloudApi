@@ -104,7 +104,6 @@ class FixedTimeSchedule:
 
             if (k < len(intervals_sorted) - 1 or interval.end_greenyellow >= intervals_sorted[0].start_greenyellow) \
                     and interval.end_greenyellow < prev_time:
-                print("end failed", interval)
                 raise ValueError("The greenyellow intervals of a signal group must be non-overlapping")
 
             prev_time = interval.end_greenyellow
