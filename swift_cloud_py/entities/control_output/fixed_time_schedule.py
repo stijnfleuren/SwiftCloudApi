@@ -3,6 +3,8 @@ from __future__ import annotations  # allows using a class as typing inside the 
 from typing import Dict, List
 
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
+from swift_cloud_py.entities.intersection.intersection import Intersection
+from swift_cloud_py.validate_safety_restrictions.validate_bounds import validate_bounds
 
 
 def sort_by_name(name: str):
@@ -15,7 +17,7 @@ class FixedTimeSchedule:
     Periodically repeating schedule specifying when signal groups have a greenyellow interval.
     """
     def __init__(self, greenyellow_intervals: Dict[str, List[GreenYellowInterval]], period: float) -> None:
-        self.greenyellow_intervals = greenyellow_intervals
+        self._greenyellow_intervals = greenyellow_intervals
         self.period = float(period)
 
         self._validate()
@@ -26,9 +28,9 @@ class FixedTimeSchedule:
         :param signalgroup:
         :return:
         """
-        if signalgroup.id not in self.greenyellow_intervals:
+        if signalgroup.id not in self._greenyellow_intervals:
             raise ValueError("Unkown signalgroup")
-        return self.greenyellow_intervals[signalgroup.id]
+        return self._greenyellow_intervals[signalgroup.id]
 
     def get_greenyellow_interval(self, signalgroup: SignalGroup, k: int) -> GreenYellowInterval:
         """
@@ -37,19 +39,19 @@ class FixedTimeSchedule:
         :param k:
         :return:
         """
-        if signalgroup.id not in self.greenyellow_intervals:
+        if signalgroup.id not in self._greenyellow_intervals:
             raise ValueError("Unkown signalgroup")
-        if k >= len(self.greenyellow_intervals[signalgroup.id]):
+        if k >= len(self._greenyellow_intervals[signalgroup.id]):
             raise ValueError("Trying to access greenyellow interval at index {k}, "
                              "but only indexes 0 until {len(self.greenyellow_intervals[signalgroup.id]) - 1} exist")
 
-        return self.greenyellow_intervals[signalgroup.id][k]
+        return self._greenyellow_intervals[signalgroup.id][k]
 
     def _validate(self) -> None:
         """ Validate input arguments of FixedTimeSchedule; raises ValueError if validation does not pass"""
         self._validate_types()
 
-        for _id, intervals in self.greenyellow_intervals.items():
+        for _id, intervals in self._greenyellow_intervals.items():
             self._validate_correct_order(intervals=intervals)
             self._validate_not_overlapping(intervals=intervals)
             for interval in intervals:
@@ -60,9 +62,9 @@ class FixedTimeSchedule:
         # validate structure of greenyellow_intervals
         error_message = "greenyellow_intervals should be a dictionary mapping from a signal group id (str) to " \
                         "a list of GreenYellowIntervals (List[float])"
-        if not isinstance(self.greenyellow_intervals, dict):
+        if not isinstance(self._greenyellow_intervals, dict):
             raise ValueError(error_message)
-        for _id, intervals in self.greenyellow_intervals.items():
+        for _id, intervals in self._greenyellow_intervals.items():
 
             if not isinstance(_id, str):
                 raise ValueError(error_message)
@@ -116,11 +118,22 @@ class FixedTimeSchedule:
 
             prev_time = interval.end_greenyellow
 
+    def validate_safety_restrictions(self, intersection: Intersection) -> None:
+        """
+        Check if the fixed-time schedule satisfies the safety restrictions such as bounds on greenyellow times
+        and bounds on red times.
+        intersection: intersection object (this object also contains safety restrictions that a
+        fixed-time schedule should satisfy)
+
+        This method raises a SafetyViolation-exception if the safety restrictions are not satisfied.
+        """
+        validate_bounds(intersection=intersection, fts=self)
+
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
         return {"greenyellow_intervals": {sg_id: [greenyellow_interval.to_json()
                                                   for greenyellow_interval in greenyellow_intervals]
-                                          for sg_id, greenyellow_intervals in self.greenyellow_intervals.items()},
+                                          for sg_id, greenyellow_intervals in self._greenyellow_intervals.items()},
                 "period": self.period}
 
     @staticmethod
@@ -141,14 +154,14 @@ class FixedTimeSchedule:
             return False
 
         # comparing the ids
-        ids = {_id for _id in self.greenyellow_intervals}
-        other_ids = {_id for _id in other.greenyellow_intervals}
+        ids = {_id for _id in self._greenyellow_intervals}
+        other_ids = {_id for _id in other._greenyellow_intervals}
         if ids != other_ids:
             return False
 
         # comparing the greenyellow intervals
         for _id in ids:
-            if self.greenyellow_intervals[_id] != other.greenyellow_intervals[_id]:
+            if self._greenyellow_intervals[_id] != other._greenyellow_intervals[_id]:
                 return False
 
         return True
@@ -158,10 +171,10 @@ class FixedTimeSchedule:
         string = "fixed time schedule:\n"
         string += f"\tperiod: {self.period}\n"
         string += f"\tgreenyellow intervals:"
-        max_name = max(len(sg_id) for sg_id in self.greenyellow_intervals)
+        max_name = max(len(sg_id) for sg_id in self._greenyellow_intervals)
 
         # sort by name
-        greenyellow_interval_tuples = sorted(self.greenyellow_intervals.items(),
+        greenyellow_interval_tuples = sorted(self._greenyellow_intervals.items(),
                                              key=lambda item: sort_by_name(item[0]))
         for sg_id, greenyellow_intervals in greenyellow_interval_tuples:
             string += "\n"

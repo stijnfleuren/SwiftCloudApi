@@ -32,3 +32,10 @@ class BadRequestException(Exception):
     Exception to indicate that the input to the rest-api was incorrect.
     """
     pass
+
+
+class SafetyViolation(Exception):
+    """
+    Exception that is raised when a fixed-time schedule does not satisfy all safety restrictions
+    """
+    pass

@@ -127,6 +127,8 @@ class SwiftMobilityCloudApi:
         output = r.json()
         objective_value = output["obj_value"]
         fixed_time_schedule = FixedTimeSchedule.from_json(output["fixed_time_schedule"])
+        # check if safety restrictions are satisfied; raises a SafetyViolation-exception if this is not the case.
+        fixed_time_schedule.validate_safety_restrictions(intersection=intersection)
         phase_diagram = PhaseDiagram.from_json(output["phase_diagram"])
 
         return fixed_time_schedule, phase_diagram, objective_value
