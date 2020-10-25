@@ -138,6 +138,41 @@ class TestInputValidation(unittest.TestCase):
             # THEN an error should be raised
 
 
+class TestGettingSignalGroup(unittest.TestCase):
+    """Test retrieving signal group by id from intersection object"""
+
+    def test_getting_signal_group(self):
+        """ Test retrieving signal group by id """
+        # GIVEN
+        signalgroup1 = SignalGroup(id="sg1", traffic_lights=[TrafficLight(capacity=1800, lost_time=1)],
+                                   min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80)
+        signalgroup2 = SignalGroup(id="sg2", traffic_lights=[TrafficLight(capacity=1800, lost_time=1)],
+                                   min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80)
+
+        intersection = Intersection(signalgroups=[signalgroup1, signalgroup2], conflicts=[], sync_starts=[],
+                                    coordinations=[], prestarts=[])
+
+        # WHEN/THEN
+        self.assertEqual(intersection.get_signalgroup(signalgroup_id="sg1"), signalgroup1)
+        self.assertEqual(intersection.get_signalgroup(signalgroup_id="sg2"), signalgroup2)
+
+    def test_getting_non_existing_signal_group(self):
+        """ Test retrieving signal group by id when this id does not exist """
+        # GIVEN
+        signalgroup1 = SignalGroup(id="sg1", traffic_lights=[TrafficLight(capacity=1800, lost_time=1)],
+                                   min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80)
+        signalgroup2 = SignalGroup(id="sg2", traffic_lights=[TrafficLight(capacity=1800, lost_time=1)],
+                                   min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80)
+        intersection = Intersection(signalgroups=[signalgroup1, signalgroup2], conflicts=[], sync_starts=[],
+                                    coordinations=[], prestarts=[])
+
+        with self.assertRaises(ValueError):
+            # WHEN
+            intersection.get_signalgroup(signalgroup_id="sg3")
+
+            # THEN an error should be raised
+
+
 class TestOtherRelations(unittest.TestCase):
     def test_other_relations(self) -> None:
         """ Test if the attribute other_relation containers all other relations (sync starts,

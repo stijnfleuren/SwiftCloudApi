@@ -15,7 +15,7 @@ def validate_bounds(intersection: Intersection, fts: FixedTimeSchedule):
     """
     # check the duration of greenyellow times and red times
     for signalgroup in intersection.signalgroups:
-        greenyellow_intervals = fts.get_greenyellow_intervals(signalgroup)
+        greenyellow_intervals = fts.get_greenyellow_intervals(signalgroup=signalgroup)
         # end of the last greenyellow interval
         prev_red_switch = greenyellow_intervals[-1].end_greenyellow
 

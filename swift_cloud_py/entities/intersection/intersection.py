@@ -29,6 +29,7 @@ class Intersection:
         self.coordinations = coordinations if coordinations else []
         self.prestarts = prestarts if prestarts else []
         self._validate()
+        self._id_to_signalgroup = {signalgroup.id: signalgroup for signalgroup in signalgroups}
 
     @property
     def other_relations(self) -> List[Union[SyncStart, Coordination, PreStart]]:
@@ -44,6 +45,12 @@ class Intersection:
                          conflicts=[conflict.to_json() for conflict in self.conflicts],
                          other_relations=[other_relation.to_json() for other_relation in self.other_relations])
         return json_dict
+
+    def get_signalgroup(self, signalgroup_id: str):
+        if signalgroup_id not in self._id_to_signalgroup:
+            raise ValueError(f"signalgroup with id={signalgroup_id} does not exist")
+        else:
+            return self._id_to_signalgroup[signalgroup_id]
 
     @staticmethod
     def from_json(intersection_dict: Dict) -> Intersection:
