@@ -29,7 +29,7 @@ class GreenYellowPhase:
 
     def __str__(self):
         """string representation of object"""
-        return f"(id={self.signalgroup_id}, k={self.interval_index})"
+        return f"(id={self.signalgroup_id}, index={self.interval_index})"
 
 
 class Phase:
