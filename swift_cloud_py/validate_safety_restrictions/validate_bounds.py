@@ -1,10 +1,11 @@
 from swift_cloud_py.common.errors import SafetyViolation
+from swift_cloud_py.entities.control_output.fixed_time_schedule import FixedTimeSchedule
 from swift_cloud_py.entities.intersection.intersection import Intersection
 
 EPSILON = 10**(-3)  # small value used in checks to allow a very small violation of constraints caused by numeric errors
 
 
-def validate_bounds(intersection: Intersection, fts):
+def validate_bounds(intersection: Intersection, fts: FixedTimeSchedule):
     """
     Ensure that all bounds on greenyellow and red times are satiesfied for the specified fixed-time schedule.
     :param intersection: intersection object (this object also contains safety restrictions that a

@@ -17,6 +17,8 @@ from swift_cloud_py.entities.scenario.queue_lengths import QueueLengths
 from swift_cloud_py.enums import ObjectiveEnum
 
 # allows using a test version of the api hosted at a different url (for testing purposes).
+from swift_cloud_py.validate_safety_restrictions.validate import validate_safety_restrictions
+
 CLOUD_API_URL = os.environ.get("smc_api_url", "https://cloud-api.swiftmobility.eu")
 
 
@@ -128,7 +130,7 @@ class SwiftMobilityCloudApi:
         objective_value = output["obj_value"]
         fixed_time_schedule = FixedTimeSchedule.from_json(output["fixed_time_schedule"])
         # check if safety restrictions are satisfied; raises a SafetyViolation-exception if this is not the case.
-        fixed_time_schedule.validate_safety_restrictions(intersection=intersection)
+        validate_safety_restrictions(intersection=intersection, fixed_time_schedule=fixed_time_schedule)
         phase_diagram = PhaseDiagram.from_json(output["phase_diagram"])
 
         return fixed_time_schedule, phase_diagram, objective_value

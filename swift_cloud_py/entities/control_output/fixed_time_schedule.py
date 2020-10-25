@@ -4,7 +4,6 @@ from typing import Dict, List
 
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 from swift_cloud_py.entities.intersection.intersection import Intersection
-from swift_cloud_py.validate_safety_restrictions.validate_bounds import validate_bounds
 
 
 def sort_by_name(name: str):
@@ -117,17 +116,6 @@ class FixedTimeSchedule:
                 raise ValueError("The greenyellow intervals of a signal group must be non-overlapping")
 
             prev_time = interval.end_greenyellow
-
-    def validate_safety_restrictions(self, intersection: Intersection) -> None:
-        """
-        Check if the fixed-time schedule satisfies the safety restrictions such as bounds on greenyellow times
-        and bounds on red times.
-        intersection: intersection object (this object also contains safety restrictions that a
-        fixed-time schedule should satisfy)
-
-        This method raises a SafetyViolation-exception if the safety restrictions are not satisfied.
-        """
-        validate_bounds(intersection=intersection, fts=self)
 
     def to_json(self) -> Dict:
         """get dictionary structure that can be stored as json with json.dumps()"""
