@@ -1,9 +1,8 @@
 from __future__ import annotations  # allows using a class as typing inside the same class
 
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
-from swift_cloud_py.entities.intersection.intersection import Intersection
 
 
 def sort_by_name(name: str):
@@ -21,28 +20,42 @@ class FixedTimeSchedule:
 
         self._validate()
 
-    def get_greenyellow_intervals(self, signalgroup: SignalGroup) -> List[GreenYellowInterval]:
+    def get_greenyellow_intervals(self, signalgroup: Union[SignalGroup, str]) -> List[GreenYellowInterval]:
         """
-        get all green intervals of signal group with id signalgroup.id
-        :param signalgroup:
+        get all green intervals of the specifies signal group
+        :param signalgroup: a SignalGroup object or a signalgroup id
         :return:
         """
-        if signalgroup.id not in self._greenyellow_intervals:
+        if isinstance(signalgroup, SignalGroup):
+            _id = signalgroup.id
+        elif isinstance(signalgroup, str):
+            _id = signalgroup
+        else:
+            raise ValueError("signalgroup should be a SignalGroup object or a string")
+
+        if _id not in self._greenyellow_intervals:
             raise ValueError("Unkown signalgroup")
-        return self._greenyellow_intervals[signalgroup.id]
+        return self._greenyellow_intervals[_id]
 
     def get_greenyellow_interval(self, signalgroup: SignalGroup, k: int) -> GreenYellowInterval:
         """
-        get the green intervals k (index starts at 0!) of signal group with id signalgroup.id
-        :param signalgroup:
+        get the green intervals k (index starts at 0!) of the specifies signal group
+        :param signalgroup: a SignalGroup object or a signalgroup id
         :param k:
         :return:
         """
-        if signalgroup.id not in self._greenyellow_intervals:
+        if isinstance(signalgroup, SignalGroup):
+            _id = signalgroup.id
+        elif isinstance(signalgroup, str):
+            _id = signalgroup
+        else:
+            raise ValueError("signalgroup should be a SignalGroup object or a string")
+
+        if _id not in self._greenyellow_intervals:
             raise ValueError("Unkown signalgroup")
-        if k >= len(self._greenyellow_intervals[signalgroup.id]):
-            raise ValueError("Trying to access greenyellow interval at index {k}, "
-                             "but only indexes 0 until {len(self.greenyellow_intervals[signalgroup.id]) - 1} exist")
+        if k >= len(self._greenyellow_intervals[_id]):
+            raise ValueError(f"Trying to access greenyellow interval at index {k} for signalgroup {_id}, "
+                             f"but only indexes 0 until {len(self._greenyellow_intervals[signalgroup.id]) - 1} exist")
 
         return self._greenyellow_intervals[signalgroup.id][k]
 

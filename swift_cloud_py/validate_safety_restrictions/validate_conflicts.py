@@ -16,8 +16,8 @@ def validate_conflicts(intersection: Intersection, fts: FixedTimeSchedule):
     """
 
     for conflict in intersection.conflicts:
-        intervals1 = fts.get_greenyellow_intervals(intersection.get_signalgroup(conflict.id1))
-        intervals2 = fts.get_greenyellow_intervals(intersection.get_signalgroup(conflict.id2))
+        intervals1 = fts.get_greenyellow_intervals(signalgroup=conflict.id1)
+        intervals2 = fts.get_greenyellow_intervals(signalgroup=conflict.id2)
         for index1, interval1 in enumerate(intervals1):
             for index2, interval2 in enumerate(intervals2):
                 if not conflict_satisfied(interval1=interval1, interval2=interval2, period=fts.period,

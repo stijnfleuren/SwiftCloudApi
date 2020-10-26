@@ -407,6 +407,9 @@ class TestFTSMethods(unittest.TestCase):
         # THEN
         self.assertEqual(fts.get_greenyellow_intervals(signalgroup=sg1), input_dict["greenyellow_intervals"]["sg1"])
         self.assertEqual(fts.get_greenyellow_intervals(signalgroup=sg2), input_dict["greenyellow_intervals"]["sg2"])
+        # using id should give the same result
+        self.assertEqual(fts.get_greenyellow_intervals(signalgroup=sg1.id), input_dict["greenyellow_intervals"]["sg1"])
+        self.assertEqual(fts.get_greenyellow_intervals(signalgroup=sg2.id), input_dict["greenyellow_intervals"]["sg2"])
 
     def test_retrieving_for_unkown_signalgroup(self):
         """ test retrieving greenyellow intervals of an unkown signal group """
@@ -421,6 +424,13 @@ class TestFTSMethods(unittest.TestCase):
         with self.assertRaises(ValueError):
             # WHEN trying to access greenyellow intervals of an unkown signal group
             fts.get_greenyellow_intervals(sg3)
+
+            # THEN an error should be raised
+
+        # same but using id
+        with self.assertRaises(ValueError):
+            # WHEN trying to access greenyellow intervals of an unkown signal group
+            fts.get_greenyellow_intervals(sg3.id)
 
             # THEN an error should be raised
 
