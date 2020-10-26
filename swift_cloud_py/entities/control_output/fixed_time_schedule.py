@@ -57,7 +57,7 @@ class FixedTimeSchedule:
             raise ValueError(f"Trying to access greenyellow interval at index {k} for signalgroup {_id}, "
                              f"but only indexes 0 until {len(self._greenyellow_intervals[signalgroup.id]) - 1} exist")
 
-        return self._greenyellow_intervals[signalgroup.id][k]
+        return self._greenyellow_intervals[_id][k]
 
     def _validate(self) -> None:
         """ Validate input arguments of FixedTimeSchedule; raises ValueError if validation does not pass"""

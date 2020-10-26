@@ -407,9 +407,23 @@ class TestFTSMethods(unittest.TestCase):
         # THEN
         self.assertEqual(fts.get_greenyellow_intervals(signalgroup=sg1), input_dict["greenyellow_intervals"]["sg1"])
         self.assertEqual(fts.get_greenyellow_intervals(signalgroup=sg2), input_dict["greenyellow_intervals"]["sg2"])
+
+    def test_retrieving_greenyellow_intervals_by_id(self):
+        # GIVEN
+        input_dict = TestFTSMethods.get_default_fts_inputs()
+        sg1 = SignalGroup(id="sg1", traffic_lights=[TrafficLight(capacity=800, lost_time=1)],
+                          min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80)
+        sg2 = SignalGroup(id="sg2", traffic_lights=[TrafficLight(capacity=800, lost_time=1)],
+                          min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80)
+
+        # WHEN
+        fts = FixedTimeSchedule(**input_dict)
+
         # using id should give the same result
-        self.assertEqual(fts.get_greenyellow_intervals(signalgroup=sg1.id), input_dict["greenyellow_intervals"]["sg1"])
-        self.assertEqual(fts.get_greenyellow_intervals(signalgroup=sg2.id), input_dict["greenyellow_intervals"]["sg2"])
+        self.assertEqual(fts.get_greenyellow_intervals(signalgroup=sg1),
+                         fts.get_greenyellow_intervals(signalgroup=sg1.id))
+        self.assertEqual(fts.get_greenyellow_intervals(signalgroup=sg2),
+                         fts.get_greenyellow_intervals(signalgroup=sg2.id))
 
     def test_retrieving_for_unkown_signalgroup(self):
         """ test retrieving greenyellow intervals of an unkown signal group """
@@ -451,9 +465,27 @@ class TestFTSMethods(unittest.TestCase):
                          input_dict["greenyellow_intervals"]["sg1"][0])
         self.assertEqual(fts.get_greenyellow_interval(signalgroup=sg1, k=1),
                          input_dict["greenyellow_intervals"]["sg1"][1])
-
         self.assertEqual(fts.get_greenyellow_interval(signalgroup=sg2, k=0),
                          input_dict["greenyellow_intervals"]["sg2"][0])
+
+    def test_retrieving_single_interval_with_id(self):
+        # GIVEN
+        input_dict = TestFTSMethods.get_default_fts_inputs()
+        sg1 = SignalGroup(id="sg1", traffic_lights=[TrafficLight(capacity=800, lost_time=1)],
+                          min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80)
+        sg2 = SignalGroup(id="sg2", traffic_lights=[TrafficLight(capacity=800, lost_time=1)],
+                          min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80)
+
+        # WHEN
+        fts = FixedTimeSchedule(**input_dict)
+
+        # THEN using id should give the same information
+        self.assertEqual(fts.get_greenyellow_interval(signalgroup=sg1, k=0),
+                         fts.get_greenyellow_interval(signalgroup=sg1.id, k=0))
+        self.assertEqual(fts.get_greenyellow_interval(signalgroup=sg1, k=1),
+                         fts.get_greenyellow_interval(signalgroup=sg1.id, k=1))
+        self.assertEqual(fts.get_greenyellow_interval(signalgroup=sg2, k=0),
+                         fts.get_greenyellow_interval(signalgroup=sg2.id, k=0))
 
     def test_retrieving_single_interval_for_unkown_signalgroup(self):
         """ test retrieving greenyellow intervals of an unkown signal group """
