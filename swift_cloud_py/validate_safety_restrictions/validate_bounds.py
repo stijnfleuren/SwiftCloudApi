@@ -11,7 +11,7 @@ def validate_bounds(intersection: Intersection, fts: FixedTimeSchedule):
     :param intersection: intersection object (this object also contains safety restrictions that a
     fixed-time schedule should satisfy)
     :param fts: FixedTimeSchedule object for which we want to check the safety restrictions
-    :raises ValueError if validations fail
+    :raises SafetyViolation if validations fail
     """
     # check the duration of greenyellow times and red times
     for signalgroup in intersection.signalgroups:

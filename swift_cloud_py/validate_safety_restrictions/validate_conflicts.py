@@ -12,7 +12,7 @@ def validate_conflicts(intersection: Intersection, fts: FixedTimeSchedule):
     :param intersection: intersection object (this object contains all conflicts and associated minimum clearance times
     that should be satisfied)
     :param fts: fixed-time schedule to check
-    :raises ValueError if validations fail
+    :raises SafetyViolation if validations fail
     """
 
     for conflict in intersection.conflicts:
