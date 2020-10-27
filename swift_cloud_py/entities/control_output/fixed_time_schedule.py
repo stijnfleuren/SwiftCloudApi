@@ -10,6 +10,9 @@ def sort_by_name(name: str):
     return len(name), name
 
 
+SIGNALGROUP_WRONG_TYPE_MSG = "signalgroup should be a SignalGroup object or a string"
+
+
 class FixedTimeSchedule:
     """
     Periodically repeating schedule specifying when signal groups have a greenyellow interval.
@@ -19,6 +22,23 @@ class FixedTimeSchedule:
         self.period = float(period)
 
         self._validate()
+
+    def includes_signalgroup(self, signalgroup: Union[SignalGroup, str]) -> bool:
+        """
+        Check if the specified signal group is included in the schedule.
+        :param signalgroup: a SignalGroup object or a signalgroup id
+        :return: Boolean indicating if the signal group is included in the schedule
+        """
+        if isinstance(signalgroup, SignalGroup):
+            _id = signalgroup.id
+        elif isinstance(signalgroup, str):
+            _id = signalgroup
+        else:
+            raise ValueError(SIGNALGROUP_WRONG_TYPE_MSG)
+
+        if _id not in self._greenyellow_intervals:
+            return False
+        return True
 
     def get_greenyellow_intervals(self, signalgroup: Union[SignalGroup, str]) -> List[GreenYellowInterval]:
         """
@@ -31,7 +51,7 @@ class FixedTimeSchedule:
         elif isinstance(signalgroup, str):
             _id = signalgroup
         else:
-            raise ValueError("signalgroup should be a SignalGroup object or a string")
+            raise ValueError(SIGNALGROUP_WRONG_TYPE_MSG)
 
         if _id not in self._greenyellow_intervals:
             raise ValueError("Unkown signalgroup")
@@ -49,7 +69,7 @@ class FixedTimeSchedule:
         elif isinstance(signalgroup, str):
             _id = signalgroup
         else:
-            raise ValueError("signalgroup should be a SignalGroup object or a string")
+            raise ValueError(SIGNALGROUP_WRONG_TYPE_MSG)
 
         if _id not in self._greenyellow_intervals:
             raise ValueError("Unkown signalgroup")
@@ -96,6 +116,8 @@ class FixedTimeSchedule:
     @staticmethod
     def _validate_correct_order(intervals: List[GreenYellowInterval]):
         """ Validate if the greenyellowintervals of one signal group are in correct order"""
+        if len(intervals) == 0:
+            return
         first_interval = min(intervals, key=lambda _interval: _interval.start_greenyellow)
         index_first_interval = intervals.index(first_interval)
         # ensure that the greenyellow interval that starts first is also first
@@ -112,6 +134,8 @@ class FixedTimeSchedule:
 
     def _validate_not_overlapping(self, intervals: List[GreenYellowInterval]):
         """ Validate if the greenyellowintervals of one signal group are not overlapping"""
+        if len(intervals) == 0:
+            return
         first_interval = min(intervals, key=lambda _interval: _interval.start_greenyellow)
         index_first_interval = intervals.index(first_interval)
         # ensure that the greenyellow interval that starts first is also first
