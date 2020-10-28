@@ -11,6 +11,7 @@ def sort_by_name(name: str):
 
 
 SIGNALGROUP_WRONG_TYPE_MSG = "signalgroup should be a SignalGroup object or a string"
+EPSILON = 10**(-3)  # small value used in checks to allow a very small violation of constraints caused by numeric errors
 
 
 class FixedTimeSchedule:
@@ -108,9 +109,9 @@ class FixedTimeSchedule:
 
     def _validate_interval_within_period(self, interval: GreenYellowInterval):
         """ validate a single greenyellow interval"""
-        if interval.start_greenyellow > self.period:
+        if interval.start_greenyellow > self.period + EPSILON:
             raise ValueError("start_greenyellow may not exceed period duration")
-        if interval.end_greenyellow > self.period:
+        if interval.end_greenyellow > self.period + EPSILON:
             raise ValueError("end_greenyellow may not exceed period duration")
 
     @staticmethod
@@ -141,7 +142,8 @@ class FixedTimeSchedule:
         # ensure that the greenyellow interval that starts first is also first
         intervals_sorted = intervals[index_first_interval:] + intervals[:index_first_interval]
 
-        prev_time = 0
+        # -EPSILON instead of zero in case the first switch is at 0 (but due numeric errors it is slightly below zero)
+        prev_time = -EPSILON
         for k, interval in enumerate(intervals_sorted):
             if interval.start_greenyellow < prev_time:
                 raise ValueError("The greenyellow intervals of a signal group must be non-overlapping")
@@ -227,8 +229,8 @@ class GreenYellowInterval:
         # by converting to the correct data type we ensure correct types are used
         self.start_greenyellow = float(start_greenyellow)
         self.end_greenyellow = float(end_greenyellow)
-        assert start_greenyellow >= 0, "strart_greenyellow should be non-negative"
-        assert end_greenyellow >= 0, "end_greenyellow should be non-negative"
+        assert start_greenyellow >= -EPSILON, "start_greenyellow should be non-negative"
+        assert end_greenyellow >= -EPSILON, "end_greenyellow should be non-negative"
 
     def to_json(self) -> List:
         """get json serializable structure that can be stored as json with json.dumps()"""
