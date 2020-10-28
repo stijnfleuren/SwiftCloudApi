@@ -138,7 +138,8 @@ intersection = Intersection.from_json(json_serializable)
 Optimize a fixed-time schedule for an intersection and a certain arrival rates:
 ```python
 fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
-        intersection=intersection, arrival_rates=morning_rates, objective=ObjectiveEnum.max_capacity)
+        intersection=intersection, arrival_rates=morning_rates, initial_queue_lengths=estimated_queue_lengths,
+        objective=ObjectiveEnum.max_capacity)
 ```
 We allow for several objectives:
 * **ObjectiveEnum.min_delay**: Search for the fixed-time schedule that minimizes the expected (average) delay experienced by road users.
@@ -158,8 +159,26 @@ phase_diagram = SwiftMobilityCloudApi.get_phase_diagram(
 The phase diagram can be printed in pretty format:
 ```python
 print(phase_diagram)
-
 ```
+
+### Tuning a fixed-time schedule
+Traffic situations change throughout the day. This following function allows you to quickly adapt the green times of an existing fixed-time schedule to a new traffic situations.
+```python
+tuned_fixed_time_schedule, objective_value = SwiftMobilityCloudApi.get_tuned_fts(
+    intersection=intersection, fixed_time_schedule=fixed_time_schedule, arrival_rates=midday_rates, 
+    initial_queue_lengths=estimated_queue_lengths, objective=ObjectiveEnum.min_delay)
+```
+### Evaluating a fixed-time schedule
+The expected performance of a fixed-time schedule can be computed as follows:
+```python
+kpis = SwiftMobilityCloudApi.evaluate_fts(intersection=intersection, fixed_time_schedule=fixed_time_schedule,
+                                          arrival_rates=evening_rates)
+```
+These performance metrics can be printed with:
+```python
+print(kpis)
+```
+
 ### Examples
 On [github](https://github.com/stijnfleuren/SwiftCloudApi) you can find several examples in the folder swift_cloud_py/examples to get you started.
 
