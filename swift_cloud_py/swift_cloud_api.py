@@ -12,6 +12,7 @@ from swift_cloud_py.authentication.check_internet_connection import ensure_has_i
 from swift_cloud_py.entities.control_output.fixed_time_schedule import FixedTimeSchedule
 from swift_cloud_py.entities.control_output.phase_diagram import PhaseDiagram
 from swift_cloud_py.entities.intersection.intersection import Intersection
+from swift_cloud_py.entities.kpis.kpis import KPIs
 from swift_cloud_py.entities.scenario.arrival_rates import ArrivalRates
 from swift_cloud_py.entities.scenario.queue_lengths import QueueLengths
 from swift_cloud_py.enums import ObjectiveEnum
@@ -21,6 +22,7 @@ from swift_cloud_py.validate_safety_restrictions.validate import validate_safety
 
 CLOUD_API_URL = os.environ.get("smc_api_url", "https://cloud-api.swiftmobility.eu")
 
+CONNECTION_ERROR_MSG = "Connection with swift mobility cloud api could not be established"
 
 def check_status_code(response: Response) -> None:
     """
@@ -52,6 +54,10 @@ class SwiftMobilityCloudApi:
     _authentication_token: str = None  # this token is updated by the @authenticate decorator
 
     @classmethod
+    def get_authentication_header(cls):
+        return {'authorization': 'Bearer {0:s}'.format(cls._authentication_token)}
+
+    @classmethod
     @ensure_has_internet
     @authenticate
     def get_optimized_fts(cls, intersection: Intersection, arrival_rates: ArrivalRates,
@@ -63,7 +69,8 @@ class SwiftMobilityCloudApi:
         """
         Optimize a fixed-time schedule
         :param intersection: intersection for which to optimize the fts (contains signal groups, conflicts and more)
-        :param arrival_rates: arrival rates in personal car equivalent per hour (PCE/h)
+        :param arrival_rates: arrival rates; each arrival rate is specified in personal car equivalent per hour (PCE/h)
+        cyclists per hour or pedestrians per hour
         :param horizon: time period of interest in hours.
         :param min_period_duration: minimum period duration of the fixed-time schedule in seconds
         :param max_period_duration: minimum period duration of the fixed-time schedule in seconds
@@ -80,7 +87,8 @@ class SwiftMobilityCloudApi:
          increase in traffic (including the initial amount of traffic), i.e., the largest percentual increase in traffic
           for which all traffic lights are 'stable' (see also ObjectiveEnum.min_period).
         :param initial_queue_lengths: initial amount of traffic waiting at each of the traffic lights; if None, then we
-        assume no initial traffic.
+        assume no initial traffic. The unit of each queue-length should align with the unit used for the arrival rate;
+        if the arrival rate is specified in PCE/h then the queue-length needs to be specified in PCE.
         :return: fixed-time schedule, associated phase diagram and the objective value
         (minimized delay, minimized period, or maximum percentual increase in traffic divided by 100, e.g. 1 means
         currently at the verge of stability)
@@ -91,19 +99,11 @@ class SwiftMobilityCloudApi:
             initial_queue_lengths = QueueLengths({signalgroup.id: [0] * len(signalgroup.traffic_lights)
                                                   for signalgroup in intersection.signalgroups})
 
-        for signalgroup in intersection.signalgroups:
-            assert signalgroup.id in arrival_rates.id_to_arrival_rates, \
-                f"arrival rate(s) must be specified for signal group {signalgroup.id}"
-            assert len(arrival_rates.id_to_arrival_rates[signalgroup.id]) == len(signalgroup.traffic_lights), \
-                f"arrival rate(s) must be specified for all traffic lights of signal group {signalgroup.id}"
-
-            assert signalgroup.id in initial_queue_lengths.id_to_queue_lengths, \
-                f"initial_queue_lengths(s) must be specified for signal group {signalgroup.id}"
-            assert len(initial_queue_lengths.id_to_queue_lengths[signalgroup.id]) == len(signalgroup.traffic_lights), \
-                f"initial_queue_lengths(s) must be specified for all traffic lights of signalgroup {signalgroup.id}"
+        check_all_arrival_rates_and_queue_lengths_specified(intersection=intersection, arrival_rates=arrival_rates,
+                                                            initial_queue_lengths=initial_queue_lengths)
 
         endpoint = f"{CLOUD_API_URL}/fts-optimization"
-        headers = {'authorization': 'Bearer {0:s}'.format(cls._authentication_token)}
+        headers = SwiftMobilityCloudApi.get_authentication_header()
 
         # rest-api call
         try:
@@ -120,7 +120,7 @@ class SwiftMobilityCloudApi:
             r = requests.post(endpoint, json=json_dict, headers=headers)
             logging.debug(f"finished calling endpoint {endpoint}")
         except requests.exceptions.ConnectionError:
-            raise UnknownCloudException("Connection with swift mobility cloud api could not be established")
+            raise UnknownCloudException(CONNECTION_ERROR_MSG)
 
         # check for errors
         check_status_code(response=r)
@@ -138,6 +138,56 @@ class SwiftMobilityCloudApi:
     @classmethod
     @ensure_has_internet
     @authenticate
+    def evaluate_fts(cls, intersection: Intersection, arrival_rates: ArrivalRates,
+                     fixed_time_schedule: FixedTimeSchedule, horizon: float = 2.0,
+                     initial_queue_lengths: Optional[QueueLengths] = None) -> KPIs:
+        """
+        Evaluate a fixed-time schedule; returns KPIs (estimated delay experienced by road users and the capacity (
+        see also KPIs and the SwiftMobilityCloudApi.get_optimized_fts() method for their definition.
+        :param intersection: intersection for which to optimize the fts (contains signal groups, conflicts and more)
+        :param arrival_rates: arrival rates; each arrival rate is specified in personal car equivalent per hour (PCE/h)
+        cyclists per hour or pedestrians per hour
+        :param fixed_time_schedule:
+        :param initial_queue_lengths: initial amount of traffic waiting at each of the traffic lights; if None, then we
+        assume no initial traffic.
+        :param horizon: time period of interest in hours.
+        :return KPIs, which are the estimated
+        """
+        assert horizon >= 1, "horizon should exceed one hour"
+        if initial_queue_lengths is None:
+            # assume no initial traffic
+            initial_queue_lengths = QueueLengths({signalgroup.id: [0] * len(signalgroup.traffic_lights)
+                                                  for signalgroup in intersection.signalgroups})
+
+        check_all_arrival_rates_and_queue_lengths_specified(intersection=intersection, arrival_rates=arrival_rates,
+                                                            initial_queue_lengths=initial_queue_lengths)
+
+        endpoint = f"{CLOUD_API_URL}/fts-evaluation"
+        headers = SwiftMobilityCloudApi.get_authentication_header()
+
+        # rest-api call
+        try:
+            # assume that the traffic that is initially present arrives during the horizon.
+            corrected_arrival_rates = arrival_rates + initial_queue_lengths / horizon
+            json_dict = dict(
+                intersection=intersection.to_json(),
+                arrival_rates=corrected_arrival_rates.to_json(),
+                fixed_time_schedule=fixed_time_schedule.to_json()
+            )
+            logging.debug(f"calling endpoint {endpoint}")
+            r = requests.post(endpoint, json=json_dict, headers=headers)
+            logging.debug(f"finished calling endpoint {endpoint}")
+        except requests.exceptions.ConnectionError:
+            raise UnknownCloudException(CONNECTION_ERROR_MSG)
+
+        # check for errors
+        check_status_code(response=r)
+
+        return KPIs.from_json(r.json())
+
+    @classmethod
+    @ensure_has_internet
+    @authenticate
     def get_phase_diagram(cls, intersection: Intersection, fixed_time_schedule: FixedTimeSchedule) -> PhaseDiagram:
         """
         Get the phase diagram specifying the order in which the signal groups have their greenyellow intervals
@@ -147,7 +197,7 @@ class SwiftMobilityCloudApi:
         :return:
         """
         endpoint = f"{CLOUD_API_URL}/phase-diagram-computation"
-        headers = {'authorization': 'Bearer {0:s}'.format(cls._authentication_token)}
+        headers = SwiftMobilityCloudApi.get_authentication_header()
 
         # rest-api call
         try:
@@ -160,7 +210,7 @@ class SwiftMobilityCloudApi:
             r = requests.post(endpoint, json=json_dict, headers=headers)
             logging.debug(f"finished calling endpoint {endpoint}")
         except requests.exceptions.ConnectionError:
-            raise UnknownCloudException("Connection with swift mobility cloud api could not be established")
+            raise UnknownCloudException(CONNECTION_ERROR_MSG)
 
         # check for errors
         check_status_code(response=r)
@@ -169,3 +219,24 @@ class SwiftMobilityCloudApi:
         # parse output
         phase_diagram = PhaseDiagram.from_json(output["phase_diagram"])
         return phase_diagram
+
+
+def check_all_arrival_rates_and_queue_lengths_specified(intersection: Intersection, arrival_rates: ArrivalRates,
+                                                        initial_queue_lengths: QueueLengths):
+    """
+    :param intersection: intersection for which to optimize the fts (contains signal groups, conflicts and more)
+    :param arrival_rates: arrival rates in personal car equivalent per hour (PCE/h)
+    :param initial_queue_lengths: initial amount of traffic waiting at each of the traffic lights; if None, then we
+        assume no initial traffic.
+    :raises AssertionError if an arrival rate or queue length is not specified for some traffic light(s).
+    """
+    for signalgroup in intersection.signalgroups:
+        assert signalgroup.id in arrival_rates.id_to_arrival_rates, \
+            f"arrival rate(s) must be specified for signal group {signalgroup.id}"
+        assert len(arrival_rates.id_to_arrival_rates[signalgroup.id]) == len(signalgroup.traffic_lights), \
+            f"arrival rate(s) must be specified for all traffic lights of signal group {signalgroup.id}"
+
+        assert signalgroup.id in initial_queue_lengths.id_to_queue_lengths, \
+            f"initial_queue_lengths(s) must be specified for signal group {signalgroup.id}"
+        assert len(initial_queue_lengths.id_to_queue_lengths[signalgroup.id]) == len(signalgroup.traffic_lights), \
+            f"initial_queue_lengths(s) must be specified for all traffic lights of signalgroup {signalgroup.id}"
