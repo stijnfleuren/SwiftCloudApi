@@ -28,7 +28,7 @@ Suppose traffic flow is not as smooth as desired at an intersection (e.g., exper
 #### Updating infrastructure
 Traffic situations may change overtime, e.g., due to urban development. Therefore, it is very important to periodically evaluate if any infrastructural changes (or policy changes by the government) are needed.
 
-This is a very difficult decision to be made with high impact; quantitative support is really useful when making these decisions. With the API you can determine the maximum traffic increase that the infrastructure is able to handle under optimal traffic light control. This could be used to answer questions like: Is the capacity of the infrastructure (intersection) expected to still be sufficient in the upcoming 3 years?
+This is a very difficult decision to be made and it has high impact; quantitative support is really useful when making these decisions. With the API you can determine the maximum traffic increase that the infrastructure is able to handle under optimal traffic light control. This could be used to answer questions like: Is the capacity of the infrastructure (intersection) expected to still be sufficient in the upcoming 3 years?
 
 ## Installing
 You can install the [Swift Mobility Cloud API](https://www.swiftmobility.eu/services) using:
@@ -43,13 +43,13 @@ The code is hosted at https://github.com/stijnfleuren/SwiftCloudApi
 Check out the latest development version anonymously with:
 
     $ git clone git://github.com/stijnfleuren/SwiftCloudApi.git
-    $ cd swift_cloud_api
+    $ cd swift_cloud_py
 
 To install dependencies using pip, run:
 
     $ python -m pip install -Ur requirements.txt
     
-To install dependencies using pipenv, run:
+To install dependencies using pipenv, run (from the swift_cloud_py/ folder):
 
     $ python -m pipenv install
 
@@ -76,6 +76,7 @@ arrival_rates = ArrivalRates.from_json(arrival_rates_dict=json_dict["arrival_rat
 ```
 
 ### How to create an intersection
+Intersections can also be defined programmatically. 
 #### Traffic light
 Creating traffic lights:
 ```python
@@ -96,11 +97,11 @@ A conflict prevents two conflicting traffic streams from simultaneously crossing
 conflict12 = Conflict(id1=signalgroup1.id, id2=signalgroup2.id, setup12=2, setup21=3)
 ```
 A synchronous start ensures that two greenyellow intervals start at the same time; this can be used to create awareness
-of partial conflicts (e.g., two opposing left movements when driving on the right-hand side of the road)
+of partial conflicts, e.g., two opposing left movements (when driving on the right-hand side of the road).
 ```python
 sync_start = SyncStart(from_id=signalgroup1.id, to_id=signalgroup2.id)
 ```
-A prestart start can be used to create awareness of a partial conflict, e.g., to let turning traffic know that cyclists or pedestrians may cross the intersection.
+A prestart can be used to create awareness of a partial conflict, e.g., to let turning traffic know that cyclists or pedestrians may cross the intersection.
 ```python
 prestart = PreStart(from_id=signalgroup1.id, to_id=signalgroup2.id, min_prestart=2, max_prestart=10)
 ```
@@ -123,7 +124,8 @@ morning_rates = ArrivalRates(id_to_arrival_rates={"2": [800, 700], "5": [300], "
 ```
 
 ### Storing and restoring intersections etc.
-You can convert intersections and other objects to json; this is convenient to locally store this information
+You can convert intersections and other objects to json; this is convenient to locally store this information for later 
+re-use.
 ```python
 json_serializable = intersection.to_json()
 ```
@@ -156,6 +158,7 @@ phase_diagram = SwiftMobilityCloudApi.get_phase_diagram(
 The phase diagram can be printed in pretty format:
 ```python
 print(phase_diagram)
+
 ```
 ### Examples
 On [github](https://github.com/stijnfleuren/SwiftCloudApi) you can find several examples in the folder swift_cloud_py/examples to get you started.
