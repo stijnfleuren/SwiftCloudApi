@@ -59,7 +59,8 @@ def maximize_intersection_capacity(print_fixed_time_schedule: bool = False):
     - smc_api_secret: the secret access key of your swift mobility cloud api account
     If you do not have such an account yet, please contact cloud_api@swiftmobility.eu.
 
-    Tested with Swift Mobility Desktop 0.7.0.alpha
+    In this example, we load an intersection from disk (export of Swift Mobility Desktop). This functionality is tested
+    with Swift Mobility Desktop 0.7.0.alpha.
     """
     logging.info(f"Running example '{os.path.basename(__file__)}'")
     # absolute path to .json file that has been exported from swift mobility desktop
