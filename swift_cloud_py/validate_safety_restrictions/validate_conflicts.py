@@ -6,12 +6,13 @@ from swift_cloud_py.entities.intersection.intersection import Intersection
 from swift_cloud_py.entities.intersection.sg_relations import Conflict
 
 
-def validate_conflicts(intersection: Intersection, fts: FixedTimeSchedule):
+def validate_conflicts(intersection: Intersection, fts: FixedTimeSchedule, tolerance: float = 10**(-2)):
     """
     Ensure all conflicts are satisfied.
     :param intersection: intersection object (this object contains all conflicts and associated minimum clearance times
     that should be satisfied)
     :param fts: fixed-time schedule to check
+    :param tolerance: tolerance in seconds for violating safety restrictions
     :raises SafetyViolation if validations fail
     """
 
@@ -21,10 +22,23 @@ def validate_conflicts(intersection: Intersection, fts: FixedTimeSchedule):
         for index1, interval1 in enumerate(intervals1):
             for index2, interval2 in enumerate(intervals2):
                 if not conflict_satisfied(interval1=interval1, interval2=interval2, period=fts.period,
-                                          conflict=conflict):
+                                          conflict=conflict, tolerance=tolerance):
                     raise SafetyViolation(
                         f"Conflict not satified for interval {index1:d} of '{conflict.id1:s}' "
                         f"and interval {index2:d} of '{conflict.id2:s}'.")
+
+
+def conflict_satisfied(interval1: GreenYellowInterval, interval2: GreenYellowInterval, period: float,
+                       conflict: Conflict, tolerance: float):
+    forbidden_interval_for_sg2 = ((interval1.start_greenyellow - conflict.setup21 + tolerance) % period,
+                                  (interval1.end_greenyellow + conflict.setup12 - tolerance) % period)
+    intersection = overlap_of_intervals(interval1=forbidden_interval_for_sg2,
+                                        interval2=(interval2.start_greenyellow, interval2.end_greenyellow),
+                                        period=period)
+    if intersection:
+        return False
+    else:
+        return True
 
 
 def overlap_of_intervals(interval1: Tuple[float, float], interval2: Tuple[float, float], period: float
@@ -62,16 +76,3 @@ def overlap_of_intervals(interval1: Tuple[float, float], interval2: Tuple[float,
             overlapping_intervals.append(
                 (max_start % period, min_end % period))
     return overlapping_intervals
-
-
-def conflict_satisfied(interval1: GreenYellowInterval, interval2: GreenYellowInterval, period: float,
-                       conflict: Conflict):
-    forbidden_interval_for_sg2 = ((interval1.start_greenyellow - conflict.setup21 + 10**(-3)) % period,
-                                  (interval1.end_greenyellow + conflict.setup12 - 10**(-3)) % period)
-    intersection = overlap_of_intervals(interval1=forbidden_interval_for_sg2,
-                                        interval2=(interval2.start_greenyellow, interval2.end_greenyellow),
-                                        period=period)
-    if intersection:
-        return False
-    else:
-        return True
