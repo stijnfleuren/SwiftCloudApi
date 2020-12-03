@@ -87,7 +87,9 @@ class SwiftMobilityCloudApi:
           the horizon (+ initially waiting traffic).
          - ObjectiveEnum.max_capacity: search for the fixed-time schedule that can handle the largest (percentual)
          increase in traffic (including the initial amount of traffic), i.e., the largest percentual increase in traffic
-          for which all traffic lights are 'stable' (see also ObjectiveEnum.min_period).
+          for which all traffic lights are 'stable' (see also ObjectiveEnum.min_period). This objective function
+          disregards the maximum saturation of each traffic light (we assume the maximum saturation is 1 for each
+          traffic light).
         :param initial_queue_lengths: initial amount of traffic waiting at each of the traffic lights; if None, then we
         assume no initial traffic. The unit of each queue-length should align with the unit used for the arrival rate;
         if the arrival rate is specified in PCE/h then the queue-length needs to be specified in PCE.
