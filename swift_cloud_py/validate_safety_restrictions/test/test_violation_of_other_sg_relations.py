@@ -7,7 +7,7 @@ from swift_cloud_py.entities.intersection.intersection import Intersection
 from swift_cloud_py.entities.intersection.traffic_light import TrafficLight
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 from swift_cloud_py.entities.control_output.fixed_time_schedule import FixedTimeSchedule, GreenYellowInterval
-from swift_cloud_py.entities.intersection.sg_relations import SyncStart, Coordination, PreStart, Conflict
+from swift_cloud_py.entities.intersection.sg_relations import SyncStart, Offset, PreStart, Conflict
 from swift_cloud_py.validate_safety_restrictions.validate_other_sg_relations import find_other_sg_relation_matches, \
     get_shift_of_one_to_one_match, get_other_sg_relation_shift, validate_other_sg_relations
 
@@ -180,7 +180,7 @@ class TestGetOtherRelationShift(unittest.TestCase):
 
 
 class TestFTSOtherSGRelationValidation(unittest.TestCase):
-    """ Test validation of other  sg relations (synchronous starts, coordinations, prestarts,...)"""
+    """ Test validation of other  sg relations (synchronous starts, offsets, prestarts,...)"""
 
     @staticmethod
     def get_default_signalgroup(name: str, min_greenyellow: float = 10.0, max_greenyellow: float = 80.0,
@@ -194,14 +194,14 @@ class TestFTSOtherSGRelationValidation(unittest.TestCase):
     @staticmethod
     def get_default_intersection(additional_signalgroups: Optional[List[SignalGroup]] = None,
                                  sync_starts: List[SyncStart] = None,
-                                 coordinations: List[Coordination] = None,
+                                 offsets: List[Offset] = None,
                                  prestarts: List[PreStart] = None,
                                  ) -> Intersection:
         """
         Get a default intersection object with 2 conflicting signal groups "sg1" and "sg2"
         :param additional_signalgroups: signal groups to add to the intersection (besides signal group 'sg1' and 'sg2')
         :param sync_starts: SyncStarts that must be satisfied
-        :param coordinations: Coordinations that must be satisfied
+        :param offsets: Coordinations that must be satisfied
         :param prestarts: PreStarts that must be satisfied
         :return: the intersection object
         """
@@ -210,8 +210,8 @@ class TestFTSOtherSGRelationValidation(unittest.TestCase):
 
         if sync_starts is None:
             sync_starts = []
-        if coordinations is None:
-            coordinations = []
+        if offsets is None:
+            offsets = []
         if prestarts is None:
             prestarts = []
 
@@ -221,7 +221,7 @@ class TestFTSOtherSGRelationValidation(unittest.TestCase):
         conflict = Conflict(id1="sg1", id2="sg2", setup12=2, setup21=3)
 
         intersection = Intersection(signalgroups=[signalgroup1, signalgroup2] + additional_signalgroups,
-                                    conflicts=[conflict], sync_starts=sync_starts, coordinations=coordinations,
+                                    conflicts=[conflict], sync_starts=sync_starts, offsets=offsets,
                                     prestarts=prestarts)
 
         return intersection
@@ -277,13 +277,13 @@ class TestFTSOtherSGRelationValidation(unittest.TestCase):
 
             # THEN an error should be raised
 
-    def test_correct_coordination(self) -> None:
+    def test_correct_offset(self) -> None:
         """
-        Test that validation of correct coordination passes.
+        Test that validation of correct offset passes.
         :return:
         """
         # GIVEN
-        coordination = Coordination(from_id="sg3", to_id="sg4", coordination_time=20)
+        offset = Offset(from_id="sg3", to_id="sg4", seconds=20)
         fts = FixedTimeSchedule(greenyellow_intervals=dict(
             sg1=[GreenYellowInterval(start_greenyellow=15, end_greenyellow=35)],
             sg2=[GreenYellowInterval(start_greenyellow=45, end_greenyellow=65)],
@@ -295,7 +295,7 @@ class TestFTSOtherSGRelationValidation(unittest.TestCase):
         signalgroup3 = TestFTSOtherSGRelationValidation.get_default_signalgroup(name="sg3")
         signalgroup4 = TestFTSOtherSGRelationValidation.get_default_signalgroup(name="sg4")
         intersection = TestFTSOtherSGRelationValidation.get_default_intersection(
-            additional_signalgroups=[signalgroup3, signalgroup4], coordinations=[coordination])
+            additional_signalgroups=[signalgroup3, signalgroup4], offsets=[offset])
 
         for interval_shift in range(2):
             with self.subTest(f"interval_shift={interval_shift}"):
@@ -307,13 +307,13 @@ class TestFTSOtherSGRelationValidation(unittest.TestCase):
 
                 # THEN no error should be raised
 
-    def test_incorrect_coordination(self) -> None:
+    def test_incorrect_offset(self) -> None:
         """
-        Test that validation of incorrect coordination raises SafetyViolation.
+        Test that validation of incorrect offset raises SafetyViolation.
         :return:
         """
         # GIVEN
-        coordination = Coordination(from_id="sg3", to_id="sg4", coordination_time=20)
+        offset = Offset(from_id="sg3", to_id="sg4", seconds=20)
         fts_org = FixedTimeSchedule(greenyellow_intervals=dict(
             sg1=[GreenYellowInterval(start_greenyellow=15, end_greenyellow=35)],
             sg2=[GreenYellowInterval(start_greenyellow=45, end_greenyellow=65)],
@@ -325,7 +325,7 @@ class TestFTSOtherSGRelationValidation(unittest.TestCase):
         signalgroup3 = TestFTSOtherSGRelationValidation.get_default_signalgroup(name="sg3")
         signalgroup4 = TestFTSOtherSGRelationValidation.get_default_signalgroup(name="sg4")
         intersection = TestFTSOtherSGRelationValidation.get_default_intersection(
-            additional_signalgroups=[signalgroup3, signalgroup4], coordinations=[coordination])
+            additional_signalgroups=[signalgroup3, signalgroup4], offsets=[offset])
 
         for interval_shift in range(2):
             with self.subTest(f"interval_shift={interval_shift}"):
@@ -347,7 +347,7 @@ class TestFTSOtherSGRelationValidation(unittest.TestCase):
         # GIVEN
         min_prestart = 20
         max_prestart = 30
-        prestart = PreStart(from_id="sg3", to_id="sg4", min_prestart=min_prestart, max_prestart=max_prestart)
+        prestart = PreStart(from_id="sg3", to_id="sg4", min_seconds=min_prestart, max_seconds=max_prestart)
         fts = FixedTimeSchedule(greenyellow_intervals=dict(
             sg1=[GreenYellowInterval(start_greenyellow=15, end_greenyellow=35)],
             sg2=[GreenYellowInterval(start_greenyellow=45, end_greenyellow=65)],
@@ -389,7 +389,7 @@ class TestFTSOtherSGRelationValidation(unittest.TestCase):
         # GIVEN
         min_prestart = 20
         max_prestart = 30
-        prestart = PreStart(from_id="sg3", to_id="sg4", min_prestart=min_prestart, max_prestart=max_prestart)
+        prestart = PreStart(from_id="sg3", to_id="sg4", min_seconds=min_prestart, max_seconds=max_prestart)
         fts = FixedTimeSchedule(greenyellow_intervals=dict(
             sg1=[GreenYellowInterval(start_greenyellow=15, end_greenyellow=35)],
             sg2=[GreenYellowInterval(start_greenyellow=45, end_greenyellow=65)],

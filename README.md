@@ -105,9 +105,9 @@ A prestart can be used to create awareness of a partial conflict, e.g., to let t
 ```python
 prestart = PreStart(from_id=signalgroup1.id, to_id=signalgroup2.id, min_prestart=2, max_prestart=10)
 ```
-A coordination can be used to coordinate the start of two greenyellow intervals, which is useful to create green waves.
+An offset can be used to coordinate the start of two greenyellow intervals, which is useful to create green waves.
 ```python
-coordination = Coordination(from_id=signalgroup1.id, to_id=signalgroup2.id, coordination_time=5)
+offset = Offset(from_id=signalgroup1.id, to_id=signalgroup2.id, offset=5)
 ```
 #### Intersections
 Creating an intersection with all relevant traffic light control restrictions:

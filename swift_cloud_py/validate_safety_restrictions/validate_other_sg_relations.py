@@ -3,12 +3,12 @@ from typing import Optional, Union, List
 from swift_cloud_py.common.errors import SafetyViolation
 from swift_cloud_py.entities.intersection.intersection import Intersection
 from swift_cloud_py.entities.control_output.fixed_time_schedule import FixedTimeSchedule
-from swift_cloud_py.entities.intersection.sg_relations import SyncStart, Coordination, PreStart
+from swift_cloud_py.entities.intersection.sg_relations import SyncStart, Offset, PreStart
 
 
 def validate_other_sg_relations(intersection: Intersection, fts: FixedTimeSchedule, tolerance: float = 10**(-2)):
     """
-    Ensure all sync starts, coordinations and prestarts are satisfied.
+    Ensure all sync starts, offsets and prestarts are satisfied.
     :param intersection: intersection containing these inter signal group relations
     :param fts: fixed-time schedule to validate
     :param tolerance: tolerance in seconds for violating safety restrictions
@@ -22,7 +22,7 @@ def validate_other_sg_relations(intersection: Intersection, fts: FixedTimeSchedu
                 f"not satisfied.")
 
 
-def get_other_sg_relation_shift(other_relation: Union[Coordination, PreStart, SyncStart], fts: FixedTimeSchedule,
+def get_other_sg_relation_shift(other_relation: Union[Offset, PreStart, SyncStart], fts: FixedTimeSchedule,
                                 tolerance: float = 10**(-2)) -> Optional[int]:
     """
     Find a shift 'shift' of the greenyellow intervals such that the specified inter signal group relation is satisfied
@@ -94,13 +94,13 @@ def get_shift_of_one_to_one_match(matches: List[List[bool]]) -> Optional[int]:
     return None
 
 
-def find_other_sg_relation_matches(other_relation: Union[SyncStart, Coordination, PreStart], fts: FixedTimeSchedule,
+def find_other_sg_relation_matches(other_relation: Union[SyncStart, Offset, PreStart], fts: FixedTimeSchedule,
                                    index_from: int, tolerance: float = 10**(-2)) -> List[bool]:
     """
     Find the greenyellow intervals of the signal group with id 'other_relation.to_id' that satisfies the specified
     inter signalgroup relation w.r.t. the greenyellow interval of signal group other_relation.from_id at index
     'index_from'
-    :param other_relation: the other relation (sync start, coordination or prestart)
+    :param other_relation: the other relation (sync start, offset or prestart)
     :param fts: fixed-time schedule
     :param index_from: see above
     :param tolerance: tolerance in seconds for violating safety restrictions
@@ -119,9 +119,9 @@ def find_other_sg_relation_matches(other_relation: Union[SyncStart, Coordination
         if isinstance(other_relation, SyncStart):
             min_time = 0
             max_time = 0
-        elif isinstance(other_relation, Coordination):
-            min_time = other_relation.coordination_time
-            max_time = other_relation.coordination_time
+        elif isinstance(other_relation, Offset):
+            min_time = other_relation.seconds
+            max_time = other_relation.seconds
         elif isinstance(other_relation, PreStart):
             min_time = other_relation.min_prestart
             max_time = other_relation.max_prestart

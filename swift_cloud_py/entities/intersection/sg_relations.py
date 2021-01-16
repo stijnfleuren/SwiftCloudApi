@@ -83,14 +83,15 @@ class SyncStart:
             raise ValueError("ids of sync-start must be different")
 
 
-class Coordination:
-    def __init__(self, from_id: str, to_id: str, coordination_time: float) -> None:
+class Offset:
+    def __init__(self, from_id: str, to_id: str, seconds: float) -> None:
         """
-        Force coordination between the start (of each greenyellow interval) of two signalgroups
+        Force an offset of 'offset' seconds between the start (of each greenyellow interval) of
+        signalgroup with id 'from_id' and the start (of each greenyellow interval) of the signalgroup with id 'to_id'.
         (the ones with id 'from_id' and 'to_id').
         :param from_id: name of signalgroup
         :param to_id: name of signalgroup
-        :param coordination_time: The exact number of seconds forced between the start of the greenyellow interval of
+        :param seconds: The exact number of seconds forced between the start of the greenyellow interval of
         signal group 'from_id' to the greenyellow interval of signal group 'to_id'
 
         Note: This also forces the number of greenyellow intervals to be the same for both signal groups
@@ -98,7 +99,7 @@ class Coordination:
         # by converting to the correct data type we ensure correct types are used
         self.from_id = str(from_id)
         self.to_id = str(to_id)
-        self.coordination_time = float(coordination_time)
+        self.seconds = float(seconds)
 
         # validate values of arguments
         self._validate()
@@ -107,25 +108,25 @@ class Coordination:
         """get dictionary structure that can be stored as json with json.dumps()"""
         return {"from_id": self.from_id, "from_start_gy": True,
                 "to_id": self.to_id, "to_start_gy": True,
-                "min_time": self.coordination_time, "max_time": self.coordination_time, "same_start_phase": False}
+                "min_time": self.seconds, "max_time": self.seconds, "same_start_phase": False}
 
     @staticmethod
-    def from_json(coordination_dict: Dict) -> Coordination:
-        """Loading coordination from json (expected same json structure as generated with to_json)"""
-        assert coordination_dict["min_time"] == coordination_dict["max_time"], \
-            "trying to load Coordination from dictionary, but the provided dictionary is not a coordination!"
-        return Coordination(from_id=coordination_dict["from_id"],
-                            to_id=coordination_dict["to_id"],
-                            coordination_time=coordination_dict["min_time"])
+    def from_json(offset_dict: Dict) -> Offset:
+        """Loading offset from json (expected same json structure as generated with to_json)"""
+        assert offset_dict["min_time"] == offset_dict["max_time"], \
+            "trying to load Offset from dictionary, but the provided dictionary is not an offset!"
+        return Offset(from_id=offset_dict["from_id"],
+                      to_id=offset_dict["to_id"],
+                      seconds=offset_dict["min_time"])
 
     def _validate(self):
-        """ Validate input arguments of Coorination """
+        """ Validate input arguments of Offset """
         if not self.from_id != self.to_id:
-            raise ValueError("ids of coordination must be different")
+            raise ValueError("ids of offset must be different")
 
 
 class PreStart:
-    def __init__(self, from_id: str, to_id: str, min_prestart: float, max_prestart: float) -> None:
+    def __init__(self, from_id: str, to_id: str, min_seconds: float, max_seconds: float) -> None:
         """
         A prestart is the time from signal group "from_id" starting its greenyellow interval to signal group "to_id"
         starting its greenyellow interval; for example a prestart of at least 5 seconds and at most 10 seconds
@@ -133,14 +134,14 @@ class PreStart:
         at least 5 seconds and at most 10 seconds before SG1 starts it greenyellow interval.
         :param from_id:
         :param to_id:
-        :param min_prestart: lower bound on the allowed duration of the prestart
-        :param min_prestart: upper bound on the allowed duration of the prestart
+        :param min_seconds: lower bound on the allowed duration of the prestart
+        :param max_seconds: upper bound on the allowed duration of the prestart
         """
         # by converting to the correct data type we ensure correct types are used
         self.from_id = str(from_id)
         self.to_id = str(to_id)
-        self.min_prestart = float(min_prestart)
-        self.max_prestart = float(max_prestart)
+        self.min_prestart = float(min_seconds)
+        self.max_prestart = float(max_seconds)
 
         # validate values of arguments
         self._validate()
@@ -157,8 +158,8 @@ class PreStart:
         """Loading prestart from json (expected same json structure as generated with to_json)"""
         return PreStart(from_id=pre_start_dict["from_id"],
                         to_id=pre_start_dict["to_id"],
-                        min_prestart=pre_start_dict["min_time"],
-                        max_prestart=pre_start_dict["max_time"])
+                        min_seconds=pre_start_dict["min_time"],
+                        max_seconds=pre_start_dict["max_time"])
 
     def _validate(self):
         """ Validate input arguments of PreStart """

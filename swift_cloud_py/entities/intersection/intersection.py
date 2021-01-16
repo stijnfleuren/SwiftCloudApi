@@ -2,13 +2,13 @@ from __future__ import annotations  # allows using intersection-typing inside in
 import json
 from typing import List, Union, Optional, Dict
 
-from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Coordination, PreStart
+from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, PreStart
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 
 
 class Intersection:
     def __init__(self, signalgroups: List[SignalGroup], conflicts: List[Conflict],
-                 sync_starts: Optional[List[SyncStart]] = None, coordinations: Optional[List[Coordination]] = None,
+                 sync_starts: Optional[List[SyncStart]] = None, offsets: Optional[List[Offset]] = None,
                  prestarts: Optional[List[PreStart]] = None) -> None:
         """
         intersection object containing information depending on intersection geometry and traffic light control
@@ -20,22 +20,22 @@ class Intersection:
         :param signalgroups: list of signal group objects present at the intersection.
         :param conflicts: list of conflicts at the intersection.
         :param sync_starts: list of synchronous starts desired for this intersection.
-        :param coordinations: list of coordinations desired for this intersection.
+        :param offsets: list of offsets desired for this intersection.
         :param prestarts: list of prestarts desired for this intersection.
         """
         self.signalgroups = signalgroups
         self.conflicts = conflicts
         self.sync_starts = sync_starts if sync_starts else []
-        self.coordinations = coordinations if coordinations else []
+        self.offsets = offsets if offsets else []
         self.prestarts = prestarts if prestarts else []
         self._validate()
         self._id_to_signalgroup = {signalgroup.id: signalgroup for signalgroup in signalgroups}
 
     @property
-    def other_relations(self) -> List[Union[SyncStart, Coordination, PreStart]]:
+    def other_relations(self) -> List[Union[SyncStart, Offset, PreStart]]:
         other_relations = []
         other_relations.extend(self.sync_starts)
-        other_relations.extend(self.coordinations)
+        other_relations.extend(self.offsets)
         other_relations.extend(self.prestarts)
         return other_relations
 
@@ -67,23 +67,23 @@ class Intersection:
         conflicts = [Conflict.from_json(conflict_dict=conflict_dict)
                      for conflict_dict in intersection_dict["conflicts"]]
 
-        # load other relations (synchronous starts, coordinations and prestarts)
+        # load other relations (synchronous starts, offsets and prestarts)
         sync_starts = []
-        coordinations = []
+        offsets = []
         prestarts = []
         for other_relation_dict in intersection_dict["other_relations"]:
             assert other_relation_dict["from_start_gy"] and other_relation_dict["to_start_gy"], \
-                "besides conflicts, at the moment the cloud api can only handle synchronous starts, coordinations " \
+                "besides conflicts, at the moment the cloud api can only handle synchronous starts, offsets " \
                 "and prestarts."
             if other_relation_dict["min_time"] == other_relation_dict["max_time"]:
                 if other_relation_dict["min_time"] == 0:  # sync start
                     sync_starts.append(SyncStart.from_json(sync_start_dict=other_relation_dict))
-                else:  # coordination
-                    coordinations.append(Coordination.from_json(coordination_dict=other_relation_dict))
+                else:  # offset
+                    offsets.append(Offset.from_json(offset_dict=other_relation_dict))
             else:  # prestart
                 prestarts.append(PreStart.from_json(pre_start_dict=other_relation_dict))
         return Intersection(signalgroups=signalgroups, conflicts=conflicts, sync_starts=sync_starts,
-                            coordinations=coordinations, prestarts=prestarts)
+                            offsets=offsets, prestarts=prestarts)
 
     @staticmethod
     def from_swift_mobility_export(json_path) -> Intersection:
@@ -134,12 +134,12 @@ class Intersection:
             if not isinstance(sync_start, SyncStart):
                 raise TypeError("sync_start should be a list of SyncStart objects")
 
-        # coordinations
-        if not isinstance(self.coordinations, list):
-            raise TypeError("coordination should be a list of Coordination objects")
-        for coordination in self.coordinations:
-            if not isinstance(coordination, Coordination):
-                raise TypeError("coordination should be a list of Coordination objects")
+        # offsets
+        if not isinstance(self.offsets, list):
+            raise TypeError("offsets should be a list of Offset objects")
+        for offset in self.offsets:
+            if not isinstance(offset, Offset):
+                raise TypeError("offset should be a list of Coordination objects")
 
         # prestarts
         if not isinstance(self.prestarts, list):
@@ -188,7 +188,7 @@ class Intersection:
         num_relations = len(self.other_relations) + len(self.conflicts)
         if num_relations != len(unique_relations):
             raise ValueError("Not allowed to specify multiple relations "
-                             "(conflict, syncstart, coordination, prestart) for a single signal group pair.")
+                             "(conflict, syncstart, offset, prestart) for a single signal group pair.")
 
     def _validate_setup_times(self):
         # validate setup times are not too negative

@@ -1,7 +1,7 @@
 import unittest
 from typing import Dict
 
-from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Coordination, PreStart
+from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, PreStart
 
 
 class TestConflictInputValidation(unittest.TestCase):
@@ -147,7 +147,7 @@ class TestCoordinationInputValidation(unittest.TestCase):
     @staticmethod
     def get_default_inputs() -> Dict:
         """ function to get default (valid) inputs for Coordination() """
-        return dict(from_id="1", to_id="2", coordination_time=10)
+        return dict(from_id="1", to_id="2", seconds=10)
 
     def test_successful_validation(self) -> None:
         """ Test initializing Coordination object with correct input """
@@ -155,7 +155,7 @@ class TestCoordinationInputValidation(unittest.TestCase):
         input_dict = TestCoordinationInputValidation.get_default_inputs()
 
         # WHEN
-        Coordination(**input_dict)
+        Offset(**input_dict)
 
         # THEN no exception should occur
 
@@ -166,12 +166,12 @@ class TestCoordinationInputValidation(unittest.TestCase):
         input_dict["from_id"] = 1
         input_dict["to_id"] = 2
 
-        # WHEN initializing the coordination
-        coordination = Coordination(**input_dict)
+        # WHEN initializing the offset
+        offset = Offset(**input_dict)
 
         # Should not give an error (datatype is converted to string)
-        self.assertEqual(coordination.from_id, "1")
-        self.assertEqual(coordination.to_id, "2")
+        self.assertEqual(offset.from_id, "1")
+        self.assertEqual(offset.to_id, "2")
 
     def test_non_unique_ids(self) -> None:
         """ Test giving two identical ids to initialize a Coordination """
@@ -180,7 +180,7 @@ class TestCoordinationInputValidation(unittest.TestCase):
         input_dict["from_id"] = "1"
         input_dict["to_id"] = "1"
         with self.assertRaises(ValueError):
-            Coordination(**input_dict)
+            Offset(**input_dict)
 
         # THEN an error should be raised
 
@@ -192,12 +192,12 @@ class TestCoordinationJsonConversion(unittest.TestCase):
         input_dict = TestCoordinationInputValidation.get_default_inputs()
 
         # WHEN
-        coordination = Coordination(**input_dict)
+        offset = Offset(**input_dict)
 
         # THEN converting back and forth should in the end give the same result
-        coordination_dict = coordination.to_json()
-        coordination_from_json = Coordination.from_json(coordination_dict=coordination_dict)
-        self.assertDictEqual(coordination_dict, coordination_from_json.to_json())
+        offset_dict = offset.to_json()
+        offset_from_json = Offset.from_json(offset_dict=offset_dict)
+        self.assertDictEqual(offset_dict, offset_from_json.to_json())
 
 
 class TestPreStartInputValidation(unittest.TestCase):
@@ -205,7 +205,7 @@ class TestPreStartInputValidation(unittest.TestCase):
     @staticmethod
     def get_default_inputs() -> Dict:
         """ function to get default (valid) inputs for Coordination() """
-        return dict(from_id="1", to_id="2", min_prestart=10, max_prestart=15)
+        return dict(from_id="1", to_id="2", min_seconds=10, max_seconds=15)
 
     def test_successful_validation(self) -> None:
         """ Test initializing PreStart object with correct input """
@@ -246,8 +246,8 @@ class TestPreStartInputValidation(unittest.TestCase):
         """ Test giving two identical ids to initialize a Coordination """
         # GIVEN
         input_dict = TestPreStartInputValidation.get_default_inputs()
-        input_dict["min_prestart"] = 20
-        input_dict["max_prestart"] = 10
+        input_dict["min_seconds"] = 20
+        input_dict["max_seconds"] = 10
         with self.assertRaises(ValueError):
             PreStart(**input_dict)
 
