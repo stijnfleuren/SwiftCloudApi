@@ -276,9 +276,22 @@ class SwiftMobilityCloudApi:
         """
         Get the phase diagram specifying the order in which the signal groups have their greenyellow intervals
         in the fixed-time schedule
-        :param intersection: intersection for which to optimize the fts (contains signalgroups, conflicts and more)
+        :param intersection: intersection for which to optimize the fts (contains signal groups, conflicts and more)
         :param fixed_time_schedule: fixed-time schedule for which we want to retrieve the phase diagram.
-        :return:
+        :return: the associated phase diagram
+
+        IMPORTANT: we try to start the greenyellow intervals of two signal groups that are subject to a synchronous
+        start or a prestart in the same phase; however, if this is not possible for all such pairs, then we try to
+        satisfy it for as many such pairs as possible.
+
+        For example consider the following theoretical problem where we have three signal groups:
+        sg1, sg2, and sg3. sg1 conflicts with sg2 and sg3. sg2 has a prestart(min=30, max=50) w.r.t. sg3.
+        The following schedule is feasible
+        greenyellow_intervals = {"sg1": [[0, 10], [40, 50]], "sg2": [[20, 30]], "sg3": [[60,70]]}
+        period=80
+
+        However, it is not possible to find a phase diagram where sg2 and sg3 start in the same phase; only the
+        following phase diagram is possible:  [[["sg1", 0]], [["sg2", 0]], [["sg1", 1]], [["sg3", 0]]]
         """
         endpoint = f"{CLOUD_API_URL}/phase-diagram-computation"
         headers = SwiftMobilityCloudApi.get_authentication_header()

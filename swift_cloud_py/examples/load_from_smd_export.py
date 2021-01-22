@@ -34,6 +34,7 @@ def load_from_smd_and_run():
 
     logging.info(f"Loading intersection and traffic situation from disk")
     intersection = Intersection.from_json(intersection_dict=json_dict["intersection"])
+
     arrival_rates = ArrivalRates.from_json(arrival_rates_dict=json_dict["arrival_rates"])
     logging.info(f"Loaded intersection and traffic situation from disk")
 
