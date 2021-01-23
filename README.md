@@ -5,7 +5,7 @@
 ## Introduction
 This library provides a pure Python interface for the [Swift Mobility Cloud API](https://www.swiftmobility.eu/services). It works with Python versions 3.7 and above.
 
-[Swift Mobility](https://www.swiftmobility.eu/>) provides services for fully automated optimization of fixed-time schedules (traffic light schedules) in a matter of seconds, even for the most complex intersections. [Swift Mobility](https://www.swiftmobility.eu/>) exposes a rest APIs and this library is intended to make it even easier for Python programmers to use.
+[Swift Mobility](https://www.swiftmobility.eu/) provides services for fully automated optimization of fixed-time schedules (traffic light schedules) in a matter of seconds, even for the most complex intersections. [Swift Mobility](https://www.swiftmobility.eu/) exposes a rest APIs and this library is intended to make it even easier for Python programmers to use.
 
 ## Usecases
 
