@@ -281,11 +281,11 @@ class SwiftMobilityCloudApi:
         :return: the associated phase diagram
 
         IMPORTANT: we try to start the greenyellow intervals of two signal groups that are subject to a synchronous
-        start or a prestart in the same phase; however, if this is not possible for all such pairs, then we try to
+        start or a greenyellow-lead in the same phase; however, if this is not possible for all such pairs, then we try to
         satisfy it for as many such pairs as possible.
 
         For example consider the following theoretical problem where we have three signal groups:
-        sg1, sg2, and sg3. sg1 conflicts with sg2 and sg3. sg2 has a prestart(min=30, max=50) w.r.t. sg3.
+        sg1, sg2, and sg3. sg1 conflicts with sg2 and sg3. sg2 has a greenyellow_lead(min=30, max=50) w.r.t. sg3.
         The following schedule is feasible
         greenyellow_intervals = {"sg1": [[0, 10], [40, 50]], "sg2": [[20, 30]], "sg3": [[60,70]]}
         period=80

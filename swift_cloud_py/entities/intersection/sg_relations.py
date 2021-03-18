@@ -125,23 +125,23 @@ class Offset:
             raise ValueError("ids of offset must be different")
 
 
-class PreStart:
+class GreenyellowLead:
     def __init__(self, from_id: str, to_id: str, min_seconds: float, max_seconds: float) -> None:
         """
-        A prestart is the time from signal group "from_id" starting its greenyellow interval to signal group "to_id"
-        starting its greenyellow interval; for example a prestart of at least 5 seconds and at most 10 seconds
+        A greenyellow-lead is the time from signal group "from_id" starting its greenyellow interval to signal group "to_id"
+        starting its greenyellow interval; for example a green-lead of at least 5 seconds and at most 10 seconds
         of sg28 with regards to sg1 means that sg28 must start its greenyellow interval
         at least 5 seconds and at most 10 seconds before SG1 starts it greenyellow interval.
         :param from_id:
         :param to_id:
-        :param min_seconds: lower bound on the allowed duration of the prestart
-        :param max_seconds: upper bound on the allowed duration of the prestart
+        :param min_seconds: lower bound on the allowed duration of the greenyellow-lead
+        :param max_seconds: upper bound on the allowed duration of the greenyellow-lead
         """
         # by converting to the correct data type we ensure correct types are used
         self.from_id = str(from_id)
         self.to_id = str(to_id)
-        self.min_prestart = float(min_seconds)
-        self.max_prestart = float(max_seconds)
+        self.min_seconds = float(min_seconds)
+        self.max_seconds = float(max_seconds)
 
         # validate values of arguments
         self._validate()
@@ -150,21 +150,21 @@ class PreStart:
         """get dictionary structure that can be stored as json with json.dumps()"""
         return {"from_id": self.from_id, "from_start_gy": True,
                 "to_id": self.to_id, "to_start_gy": True,
-                "min_time": self.min_prestart, "max_time": self.max_prestart,
+                "min_time": self.min_seconds, "max_time": self.max_seconds,
                 "same_start_phase": True}
 
     @staticmethod
-    def from_json(pre_start_dict: Dict) -> PreStart:
-        """Loading prestart from json (expected same json structure as generated with to_json)"""
-        return PreStart(from_id=pre_start_dict["from_id"],
-                        to_id=pre_start_dict["to_id"],
-                        min_seconds=pre_start_dict["min_time"],
-                        max_seconds=pre_start_dict["max_time"])
+    def from_json(json_dict: Dict) -> GreenyellowLead:
+        """Loading from json (expected same json structure as generated with to_json)"""
+        return GreenyellowLead(from_id=json_dict["from_id"],
+                               to_id=json_dict["to_id"],
+                               min_seconds=json_dict["min_time"],
+                               max_seconds=json_dict["max_time"])
 
     def _validate(self):
         """ Validate input arguments of PreStart """
         if not self.from_id != self.to_id:
             raise ValueError("ids of PreStart must be different")
 
-        if not self.max_prestart >= self.min_prestart:
-            raise ValueError("max_prestart should exceed (or equal) min_prestart")
+        if not self.max_seconds >= self.min_seconds:
+            raise ValueError("max_greenyellow_lead should exceed (or equal) min_greenyellow_lead")

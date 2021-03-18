@@ -3,7 +3,7 @@ from itertools import product
 from typing import Dict
 
 from swift_cloud_py.entities.intersection.intersection import Intersection
-from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, PreStart
+from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, GreenyellowLead
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 from swift_cloud_py.entities.intersection.traffic_light import TrafficLight
 
@@ -18,9 +18,9 @@ class TestInputValidation(unittest.TestCase):
         conflicts = [Conflict(id1="sg1", id2="sg2", setup12=1, setup21=2)]
         sync_starts = [SyncStart(from_id="sg1", to_id="sg3")]
         offsets = [Offset(from_id="sg1", to_id="sg4", seconds=10)]
-        prestarts = [PreStart(from_id="sg1", to_id="sg5", min_seconds=1, max_seconds=10)]
+        greenyellow_leads = [GreenyellowLead(from_id="sg1", to_id="sg5", min_seconds=1, max_seconds=10)]
         return dict(signalgroups=signalgroups, conflicts=conflicts, sync_starts=sync_starts,
-                    offsets=offsets, prestarts=prestarts)
+                    offsets=offsets, greenyellow_leads=greenyellow_leads)
 
     def test_successful_validation(self) -> None:
         """ Test initializing Intersection object with correct input """
@@ -79,7 +79,7 @@ class TestInputValidation(unittest.TestCase):
         input_dict = TestInputValidation.get_default_inputs()
 
         # WHEN an unknown id is used in a relations between signal groups
-        for key in ["conflicts", "sync_starts", "offsets", "prestarts"]:
+        for key in ["conflicts", "sync_starts", "offsets", "greenyellow_leads"]:
             if key == "conflicts":
                 input_dict[key][0].id1 = "unknown"
             else:
@@ -98,8 +98,8 @@ class TestInputValidation(unittest.TestCase):
         # WHEN two signal group relations exist for the same signal group pair
         id1 = "new_id1"
         id2 = "new_id2"
-        for key1, key2 in product(["conflicts", "sync_starts", "offsets", "prestarts"],
-                                  ["conflicts", "sync_starts", "offsets", "prestarts"]):
+        for key1, key2 in product(["conflicts", "sync_starts", "offsets", "greenyellow_leads"],
+                                  ["conflicts", "sync_starts", "offsets", "greenyellow_leads"]):
             if key1 == key2:
                 continue
 
@@ -150,7 +150,7 @@ class TestGettingSignalGroup(unittest.TestCase):
                                    min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80)
 
         intersection = Intersection(signalgroups=[signalgroup1, signalgroup2], conflicts=[], sync_starts=[],
-                                    offsets=[], prestarts=[])
+                                    offsets=[], greenyellow_leads=[])
 
         # WHEN/THEN
         self.assertEqual(intersection.get_signalgroup(signalgroup_id="sg1"), signalgroup1)
@@ -164,7 +164,7 @@ class TestGettingSignalGroup(unittest.TestCase):
         signalgroup2 = SignalGroup(id="sg2", traffic_lights=[TrafficLight(capacity=1800, lost_time=1)],
                                    min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80)
         intersection = Intersection(signalgroups=[signalgroup1, signalgroup2], conflicts=[], sync_starts=[],
-                                    offsets=[], prestarts=[])
+                                    offsets=[], greenyellow_leads=[])
 
         with self.assertRaises(ValueError):
             # WHEN
@@ -176,7 +176,7 @@ class TestGettingSignalGroup(unittest.TestCase):
 class TestOtherRelations(unittest.TestCase):
     def test_other_relations(self) -> None:
         """ Test if the attribute other_relation containers all other relations (sync starts,
-         offsets and prestarts)"""
+         offsets and greenyellow-leads)"""
         # GIVEN
         input_dict = TestInputValidation.get_default_inputs()
 
@@ -184,10 +184,10 @@ class TestOtherRelations(unittest.TestCase):
         intersection = Intersection(**input_dict)
 
         other_relations = intersection.other_relations
-        # THEN other_relations is the list of all sync_starts, offsets and prestarts
+        # THEN other_relations is the list of all sync_starts, offsets and greenyellow-leads
         self.assertEqual(len(input_dict["sync_starts"]) + len(input_dict["offsets"]) +
-                         len(input_dict["prestarts"]), len(other_relations))
-        for key in ["sync_starts", "offsets", "prestarts"]:
+                         len(input_dict["greenyellow_leads"]), len(other_relations))
+        for key in ["sync_starts", "offsets", "greenyellow_leads"]:
             with self.subTest(f"'{key}' in other_relations"):
                 for other_relation in input_dict[key]:
                     self.assertIn(other_relation, other_relations)

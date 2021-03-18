@@ -2,14 +2,14 @@ from __future__ import annotations  # allows using intersection-typing inside in
 import json
 from typing import List, Union, Optional, Dict
 
-from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, PreStart
+from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, GreenyellowLead
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 
 
 class Intersection:
     def __init__(self, signalgroups: List[SignalGroup], conflicts: List[Conflict],
                  sync_starts: Optional[List[SyncStart]] = None, offsets: Optional[List[Offset]] = None,
-                 prestarts: Optional[List[PreStart]] = None) -> None:
+                 greenyellow_leads: Optional[List[GreenyellowLead]] = None) -> None:
         """
         intersection object containing information depending on intersection geometry and traffic light control
         strategy (e.g., sync starts etc.);
@@ -21,22 +21,22 @@ class Intersection:
         :param conflicts: list of conflicts at the intersection.
         :param sync_starts: list of synchronous starts desired for this intersection.
         :param offsets: list of offsets desired for this intersection.
-        :param prestarts: list of prestarts desired for this intersection.
+        :param greenyellow_leads: list of greenyellow_leads desired for this intersection.
         """
         self.signalgroups = signalgroups
         self.conflicts = conflicts
         self.sync_starts = sync_starts if sync_starts else []
         self.offsets = offsets if offsets else []
-        self.prestarts = prestarts if prestarts else []
+        self.greenyellow_leads = greenyellow_leads if greenyellow_leads else []
         self._validate()
         self._id_to_signalgroup = {signalgroup.id: signalgroup for signalgroup in signalgroups}
 
     @property
-    def other_relations(self) -> List[Union[SyncStart, Offset, PreStart]]:
+    def other_relations(self) -> List[Union[SyncStart, Offset, GreenyellowLead]]:
         other_relations = []
         other_relations.extend(self.sync_starts)
         other_relations.extend(self.offsets)
-        other_relations.extend(self.prestarts)
+        other_relations.extend(self.greenyellow_leads)
         return other_relations
 
     def to_json(self):
@@ -67,23 +67,23 @@ class Intersection:
         conflicts = [Conflict.from_json(conflict_dict=conflict_dict)
                      for conflict_dict in intersection_dict["conflicts"]]
 
-        # load other relations (synchronous starts, offsets and prestarts)
+        # load other relations (synchronous starts, offsets and greenyellow_lead)
         sync_starts = []
         offsets = []
-        prestarts = []
+        greenyellow_leads = []
         for other_relation_dict in intersection_dict["other_relations"]:
             assert other_relation_dict["from_start_gy"] and other_relation_dict["to_start_gy"], \
                 "besides conflicts, at the moment the cloud api can only handle synchronous starts, offsets " \
-                "and prestarts."
+                "and greenyellow-leads."
             if other_relation_dict["min_time"] == other_relation_dict["max_time"]:
                 if other_relation_dict["min_time"] == 0:  # sync start
                     sync_starts.append(SyncStart.from_json(sync_start_dict=other_relation_dict))
                 else:  # offset
                     offsets.append(Offset.from_json(offset_dict=other_relation_dict))
-            else:  # prestart
-                prestarts.append(PreStart.from_json(pre_start_dict=other_relation_dict))
+            else:  # greenyellow-leads
+                greenyellow_leads.append(GreenyellowLead.from_json(json_dict=other_relation_dict))
         return Intersection(signalgroups=signalgroups, conflicts=conflicts, sync_starts=sync_starts,
-                            offsets=offsets, prestarts=prestarts)
+                            offsets=offsets, greenyellow_leads=greenyellow_leads)
 
     @staticmethod
     def from_swift_mobility_export(json_path) -> Intersection:
@@ -141,12 +141,12 @@ class Intersection:
             if not isinstance(offset, Offset):
                 raise TypeError("offset should be a list of Coordination objects")
 
-        # prestarts
-        if not isinstance(self.prestarts, list):
-            raise TypeError("prestart should be a list of PreStart objects")
-        for prestart in self.prestarts:
-            if not isinstance(prestart, PreStart):
-                raise TypeError("prestart should be a list of PreStart objects")
+        # greenyellow_leads
+        if not isinstance(self.greenyellow_leads, list):
+            raise TypeError("greenyellow-lead should be a list of PreStart objects")
+        for greenyellow_lead in self.greenyellow_leads:
+            if not isinstance(greenyellow_lead, GreenyellowLead):
+                raise TypeError("greenyellow-lead should be a list of PreStart objects")
 
     def _validate_ids(self):
         """
@@ -188,7 +188,7 @@ class Intersection:
         num_relations = len(self.other_relations) + len(self.conflicts)
         if num_relations != len(unique_relations):
             raise ValueError("Not allowed to specify multiple relations "
-                             "(conflict, syncstart, offset, prestart) for a single signal group pair.")
+                             "(conflict, syncstart, offset, greenyellow_lead) for a single signal group pair.")
 
     def _validate_setup_times(self):
         # validate setup times are not too negative

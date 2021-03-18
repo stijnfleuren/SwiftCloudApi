@@ -101,9 +101,9 @@ of partial conflicts, e.g., two opposing left movements (when driving on the rig
 ```python
 sync_start = SyncStart(from_id=signalgroup1.id, to_id=signalgroup2.id)
 ```
-A prestart can be used to create awareness of a partial conflict, e.g., to let turning traffic know that cyclists or pedestrians may cross the intersection.
+A greenyellow-lead can be used to create awareness of a partial conflict, e.g., to let turning traffic know that cyclists or pedestrians may cross the intersection.
 ```python
-prestart = PreStart(from_id=signalgroup1.id, to_id=signalgroup2.id, min_prestart=2, max_prestart=10)
+greenyellow_lead = GreenyellowLead(from_id=signalgroup1.id, to_id=signalgroup2.id, min_seconds=2, max_seconds=10)
 ```
 An offset can be used to coordinate the start of two greenyellow intervals, which is useful to create green waves.
 ```python

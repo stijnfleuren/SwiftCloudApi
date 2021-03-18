@@ -1,7 +1,7 @@
 import unittest
 from typing import Dict
 
-from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, PreStart
+from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, GreenyellowLead
 
 
 class TestConflictInputValidation(unittest.TestCase):
@@ -213,7 +213,7 @@ class TestPreStartInputValidation(unittest.TestCase):
         input_dict = TestPreStartInputValidation.get_default_inputs()
 
         # WHEN
-        PreStart(**input_dict)
+        GreenyellowLead(**input_dict)
 
         # THEN no exception should occur
 
@@ -224,12 +224,12 @@ class TestPreStartInputValidation(unittest.TestCase):
         input_dict["from_id"] = 1
         input_dict["to_id"] = 2
 
-        # WHEN initializing the prestart
-        prestart = PreStart(**input_dict)
+        # WHEN initializing the greenyellow-lead
+        greenyellow_lead = GreenyellowLead(**input_dict)
 
         # Should not give an error (datatype is converted to string)
-        self.assertEqual(prestart.from_id, "1")
-        self.assertEqual(prestart.to_id, "2")
+        self.assertEqual(greenyellow_lead.from_id, "1")
+        self.assertEqual(greenyellow_lead.to_id, "2")
 
     def test_non_unique_ids(self) -> None:
         """ Test giving two identical ids to initialize a Coordination """
@@ -238,7 +238,7 @@ class TestPreStartInputValidation(unittest.TestCase):
         input_dict["from_id"] = "1"
         input_dict["to_id"] = "1"
         with self.assertRaises(ValueError):
-            PreStart(**input_dict)
+            GreenyellowLead(**input_dict)
 
         # THEN an error should be raised
 
@@ -249,7 +249,7 @@ class TestPreStartInputValidation(unittest.TestCase):
         input_dict["min_seconds"] = 20
         input_dict["max_seconds"] = 10
         with self.assertRaises(ValueError):
-            PreStart(**input_dict)
+            GreenyellowLead(**input_dict)
 
         # THEN an error should be raised
 
@@ -261,9 +261,9 @@ class TestPreStartJsonConversion(unittest.TestCase):
         input_dict = TestPreStartInputValidation.get_default_inputs()
 
         # WHEN
-        prestart = PreStart(**input_dict)
+        greenyellow_lead = GreenyellowLead(**input_dict)
 
         # THEN converting back and forth should in the end give the same result
-        prestart_dict = prestart.to_json()
-        prestart_from_json = PreStart.from_json(pre_start_dict=prestart_dict)
-        self.assertDictEqual(prestart_dict, prestart_from_json.to_json())
+        greenyellow_lead_dict = greenyellow_lead.to_json()
+        greenyellow_lead_from_json = GreenyellowLead.from_json(json_dict=greenyellow_lead_dict)
+        self.assertDictEqual(greenyellow_lead_dict, greenyellow_lead_from_json.to_json())
