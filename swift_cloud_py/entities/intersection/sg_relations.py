@@ -162,9 +162,54 @@ class GreenyellowLead:
                                max_seconds=json_dict["max_time"])
 
     def _validate(self):
-        """ Validate input arguments of PreStart """
+        """ Validate input arguments of GreenyellowLead """
         if not self.from_id != self.to_id:
-            raise ValueError("ids of PreStart must be different")
+            raise ValueError("ids of GreenyellowLead must be different")
 
         if not self.max_seconds >= self.min_seconds:
             raise ValueError("max_greenyellow_lead should exceed (or equal) min_greenyellow_lead")
+
+
+class GreenyellowTrail:
+    def __init__(self, from_id: str, to_id: str, min_seconds: float, max_seconds: float) -> None:
+        """
+        A greenyellow-trail is the time from signal group "from_id" ending its greenyellow interval to signal group "to_id"
+        ending its greenyellow interval; for example a green-trail of at least 5 seconds and at most 10 seconds
+        of sg1 with regards to sg28 means that sg1 must end its greenyellow interval
+        at least 5 seconds and at most 10 seconds before SG28 ends it greenyellow interval.
+        :param from_id:
+        :param to_id:
+        :param min_seconds: lower bound on the allowed duration of the greenyellow-trail
+        :param max_seconds: upper bound on the allowed duration of the greenyellow-trail
+        """
+        # by converting to the correct data type we ensure correct types are used
+        self.from_id = str(from_id)
+        self.to_id = str(to_id)
+        self.min_seconds = float(min_seconds)
+        self.max_seconds = float(max_seconds)
+
+        # validate values of arguments
+        self._validate()
+
+    def to_json(self) -> Dict:
+        """get dictionary structure that can be stored as json with json.dumps()"""
+        return {"from_id": self.from_id, "from_start_gy": False,
+                "to_id": self.to_id, "to_start_gy": False,
+                "min_time": self.min_seconds, "max_time": self.max_seconds,
+                "same_start_phase": True}
+
+    @staticmethod
+    def from_json(json_dict: Dict) -> GreenyellowTrail:
+        """Loading from json (expected same json structure as generated with to_json)"""
+        return GreenyellowTrail(from_id=json_dict["from_id"],
+                                to_id=json_dict["to_id"],
+                                min_seconds=json_dict["min_time"],
+                                max_seconds=json_dict["max_time"])
+
+    def _validate(self):
+        """ Validate input arguments of GreenyellowTrail """
+        if not self.from_id != self.to_id:
+            raise ValueError("ids of GreenyellowTrail must be different")
+
+        if not self.max_seconds >= self.min_seconds:
+            raise ValueError("max_greenyellow_lead should exceed (or equal) min_greenyellow_trail")

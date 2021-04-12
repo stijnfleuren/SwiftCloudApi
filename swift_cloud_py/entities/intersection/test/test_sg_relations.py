@@ -1,7 +1,8 @@
 import unittest
 from typing import Dict
 
-from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, GreenyellowLead
+from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, GreenyellowLead, \
+    GreenyellowTrail
 
 
 class TestConflictInputValidation(unittest.TestCase):
@@ -200,17 +201,17 @@ class TestCoordinationJsonConversion(unittest.TestCase):
         self.assertDictEqual(offset_dict, offset_from_json.to_json())
 
 
-class TestPreStartInputValidation(unittest.TestCase):
+class TestGreenyellowLeadInputValidation(unittest.TestCase):
 
     @staticmethod
     def get_default_inputs() -> Dict:
-        """ function to get default (valid) inputs for Coordination() """
+        """ function to get default (valid) inputs for GreenyellowLead() """
         return dict(from_id="1", to_id="2", min_seconds=10, max_seconds=15)
 
     def test_successful_validation(self) -> None:
-        """ Test initializing PreStart object with correct input """
+        """ Test initializing GreenyellowLead object with correct input """
         # GIVEN
-        input_dict = TestPreStartInputValidation.get_default_inputs()
+        input_dict = TestGreenyellowLeadInputValidation.get_default_inputs()
 
         # WHEN
         GreenyellowLead(**input_dict)
@@ -218,9 +219,9 @@ class TestPreStartInputValidation(unittest.TestCase):
         # THEN no exception should occur
 
     def test_wrong_datatype_for_ids(self) -> None:
-        """ Test giving wrong datatype to PreStart for ids """
+        """ Test giving wrong datatype to GreenyellowLead for ids """
         # GIVEN
-        input_dict = TestPreStartInputValidation.get_default_inputs()
+        input_dict = TestGreenyellowLeadInputValidation.get_default_inputs()
         input_dict["from_id"] = 1
         input_dict["to_id"] = 2
 
@@ -232,9 +233,9 @@ class TestPreStartInputValidation(unittest.TestCase):
         self.assertEqual(greenyellow_lead.to_id, "2")
 
     def test_non_unique_ids(self) -> None:
-        """ Test giving two identical ids to initialize a Coordination """
+        """ Test giving two identical ids to initialize a GreenyellowLead """
         # GIVEN
-        input_dict = TestPreStartInputValidation.get_default_inputs()
+        input_dict = TestGreenyellowLeadInputValidation.get_default_inputs()
         input_dict["from_id"] = "1"
         input_dict["to_id"] = "1"
         with self.assertRaises(ValueError):
@@ -243,9 +244,9 @@ class TestPreStartInputValidation(unittest.TestCase):
         # THEN an error should be raised
 
     def test_minimum_exceeding_maximum(self) -> None:
-        """ Test giving two identical ids to initialize a Coordination """
+        """ Test giving two identical ids to initialize a GreenyellowLead """
         # GIVEN
-        input_dict = TestPreStartInputValidation.get_default_inputs()
+        input_dict = TestGreenyellowLeadInputValidation.get_default_inputs()
         input_dict["min_seconds"] = 20
         input_dict["max_seconds"] = 10
         with self.assertRaises(ValueError):
@@ -254,11 +255,11 @@ class TestPreStartInputValidation(unittest.TestCase):
         # THEN an error should be raised
 
 
-class TestPreStartJsonConversion(unittest.TestCase):
+class TestGreenyellowLeadJsonConversion(unittest.TestCase):
     def test_json_back_and_forth(self) -> None:
         """ test converting back and forth from and to json """
         # GIVEN
-        input_dict = TestPreStartInputValidation.get_default_inputs()
+        input_dict = TestGreenyellowLeadInputValidation.get_default_inputs()
 
         # WHEN
         greenyellow_lead = GreenyellowLead(**input_dict)
@@ -267,3 +268,72 @@ class TestPreStartJsonConversion(unittest.TestCase):
         greenyellow_lead_dict = greenyellow_lead.to_json()
         greenyellow_lead_from_json = GreenyellowLead.from_json(json_dict=greenyellow_lead_dict)
         self.assertDictEqual(greenyellow_lead_dict, greenyellow_lead_from_json.to_json())
+
+
+class TestGreenyellowTrailInputValidation(unittest.TestCase):
+
+    @staticmethod
+    def get_default_inputs() -> Dict:
+        """ function to get default (valid) inputs for GreenyellowTrail() """
+        return dict(from_id="1", to_id="2", min_seconds=11, max_seconds=14)
+
+    def test_successful_validation(self) -> None:
+        """ Test initializing GreenyellowTrail object with correct input """
+        # GIVEN
+        input_dict = TestGreenyellowTrailInputValidation.get_default_inputs()
+
+        # WHEN
+        GreenyellowTrail(**input_dict)
+
+        # THEN no exception should occur
+
+    def test_wrong_datatype_for_ids(self) -> None:
+        """ Test giving wrong datatype to GreenyellowTrail for ids """
+        # GIVEN
+        input_dict = TestGreenyellowTrailInputValidation.get_default_inputs()
+        input_dict["from_id"] = 1
+        input_dict["to_id"] = 2
+
+        # WHEN initializing the greenyellow-lead
+        greenyellow_trail = GreenyellowTrail(**input_dict)
+
+        # Should not give an error (datatype is converted to string)
+        self.assertEqual(greenyellow_trail.from_id, "1")
+        self.assertEqual(greenyellow_trail.to_id, "2")
+
+    def test_non_unique_ids(self) -> None:
+        """ Test giving two identical ids to initialize a GreenyellowTrail """
+        # GIVEN
+        input_dict = TestGreenyellowTrailInputValidation.get_default_inputs()
+        input_dict["from_id"] = "1"
+        input_dict["to_id"] = "1"
+        with self.assertRaises(ValueError):
+            GreenyellowTrail(**input_dict)
+
+        # THEN an error should be raised
+
+    def test_minimum_exceeding_maximum(self) -> None:
+        """ Test giving two identical ids to initialize a Coordination """
+        # GIVEN
+        input_dict = TestGreenyellowTrailInputValidation.get_default_inputs()
+        input_dict["min_seconds"] = 20
+        input_dict["max_seconds"] = 10
+        with self.assertRaises(ValueError):
+            GreenyellowTrail(**input_dict)
+
+        # THEN an error should be raised
+
+
+class TestGreenyellowTrailJsonConversion(unittest.TestCase):
+    def test_json_back_and_forth(self) -> None:
+        """ test converting back and forth from and to json """
+        # GIVEN
+        input_dict = TestGreenyellowTrailInputValidation.get_default_inputs()
+
+        # WHEN
+        greenyellow_trail = GreenyellowTrail(**input_dict)
+
+        # THEN converting back and forth should in the end give the same result
+        greenyellow_trail_dict = greenyellow_trail.to_json()
+        greenyellow_trail_from_json = GreenyellowTrail.from_json(json_dict=greenyellow_trail_dict)
+        self.assertDictEqual(greenyellow_trail_dict, greenyellow_trail_from_json.to_json())

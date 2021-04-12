@@ -3,7 +3,8 @@ from itertools import product
 from typing import Dict
 
 from swift_cloud_py.entities.intersection.intersection import Intersection
-from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, GreenyellowLead
+from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, GreenyellowLead, \
+    GreenyellowTrail
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 from swift_cloud_py.entities.intersection.traffic_light import TrafficLight
 
@@ -19,8 +20,9 @@ class TestInputValidation(unittest.TestCase):
         sync_starts = [SyncStart(from_id="sg1", to_id="sg3")]
         offsets = [Offset(from_id="sg1", to_id="sg4", seconds=10)]
         greenyellow_leads = [GreenyellowLead(from_id="sg1", to_id="sg5", min_seconds=1, max_seconds=10)]
+        greenyellow_trails = [GreenyellowTrail(from_id="sg5", to_id="sg1", min_seconds=2, max_seconds=8)]
         return dict(signalgroups=signalgroups, conflicts=conflicts, sync_starts=sync_starts,
-                    offsets=offsets, greenyellow_leads=greenyellow_leads)
+                    offsets=offsets, greenyellow_leads=greenyellow_leads, greenyellow_trails=greenyellow_trails)
 
     def test_successful_validation(self) -> None:
         """ Test initializing Intersection object with correct input """
@@ -186,7 +188,8 @@ class TestOtherRelations(unittest.TestCase):
         other_relations = intersection.other_relations
         # THEN other_relations is the list of all sync_starts, offsets and greenyellow-leads
         self.assertEqual(len(input_dict["sync_starts"]) + len(input_dict["offsets"]) +
-                         len(input_dict["greenyellow_leads"]), len(other_relations))
+                         len(input_dict["greenyellow_leads"]) + len(input_dict["greenyellow_trails"]),
+                         len(other_relations))
         for key in ["sync_starts", "offsets", "greenyellow_leads"]:
             with self.subTest(f"'{key}' in other_relations"):
                 for other_relation in input_dict[key]:

@@ -2,14 +2,16 @@ from __future__ import annotations  # allows using intersection-typing inside in
 import json
 from typing import List, Union, Optional, Dict
 
-from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, GreenyellowLead
+from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, GreenyellowLead, \
+    GreenyellowTrail
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 
 
 class Intersection:
     def __init__(self, signalgroups: List[SignalGroup], conflicts: List[Conflict],
                  sync_starts: Optional[List[SyncStart]] = None, offsets: Optional[List[Offset]] = None,
-                 greenyellow_leads: Optional[List[GreenyellowLead]] = None) -> None:
+                 greenyellow_leads: Optional[List[GreenyellowLead]] = None,
+                 greenyellow_trails: Optional[List[GreenyellowTrail]] = None) -> None:
         """
         intersection object containing information depending on intersection geometry and traffic light control
         strategy (e.g., sync starts etc.);
@@ -22,21 +24,24 @@ class Intersection:
         :param sync_starts: list of synchronous starts desired for this intersection.
         :param offsets: list of offsets desired for this intersection.
         :param greenyellow_leads: list of greenyellow_leads desired for this intersection.
+        :param greenyellow_trails: list of greenyellow_trails desired for this intersection.
         """
         self.signalgroups = signalgroups
         self.conflicts = conflicts
         self.sync_starts = sync_starts if sync_starts else []
         self.offsets = offsets if offsets else []
         self.greenyellow_leads = greenyellow_leads if greenyellow_leads else []
+        self.greenyellow_trails = greenyellow_trails if greenyellow_trails else []
         self._validate()
         self._id_to_signalgroup = {signalgroup.id: signalgroup for signalgroup in signalgroups}
 
     @property
-    def other_relations(self) -> List[Union[SyncStart, Offset, GreenyellowLead]]:
+    def other_relations(self) -> List[Union[SyncStart, Offset, GreenyellowLead, GreenyellowTrail]]:
         other_relations = []
         other_relations.extend(self.sync_starts)
         other_relations.extend(self.offsets)
         other_relations.extend(self.greenyellow_leads)
+        other_relations.extend(self.greenyellow_trails)
         return other_relations
 
     def to_json(self):
@@ -71,19 +76,24 @@ class Intersection:
         sync_starts = []
         offsets = []
         greenyellow_leads = []
+        greenyellow_trails = []
         for other_relation_dict in intersection_dict["other_relations"]:
-            assert other_relation_dict["from_start_gy"] and other_relation_dict["to_start_gy"], \
-                "besides conflicts, at the moment the cloud api can only handle synchronous starts, offsets " \
-                "and greenyellow-leads."
-            if other_relation_dict["min_time"] == other_relation_dict["max_time"]:
-                if other_relation_dict["min_time"] == 0:  # sync start
-                    sync_starts.append(SyncStart.from_json(sync_start_dict=other_relation_dict))
-                else:  # offset
-                    offsets.append(Offset.from_json(offset_dict=other_relation_dict))
-            else:  # greenyellow-leads
-                greenyellow_leads.append(GreenyellowLead.from_json(json_dict=other_relation_dict))
+            assert other_relation_dict["from_start_gy"] == other_relation_dict["to_start_gy"], \
+                "besides conflicts, at the moment the cloud api can only handle synchronous starts, offsets, " \
+                "greenyellow-leads and greenyellow-trails."
+            if other_relation_dict["from_start_gy"] is True and other_relation_dict["to_start_gy"] is True:
+                if other_relation_dict["min_time"] == other_relation_dict["max_time"]:
+                    if other_relation_dict["min_time"] == 0:  # sync start
+                        sync_starts.append(SyncStart.from_json(sync_start_dict=other_relation_dict))
+                    else:  # offset
+                        offsets.append(Offset.from_json(offset_dict=other_relation_dict))
+                else:  # greenyellow-leads
+                    greenyellow_leads.append(GreenyellowLead.from_json(json_dict=other_relation_dict))
+            elif other_relation_dict["from_start_gy"] is False and other_relation_dict["to_start_gy"] is False:
+                greenyellow_trails.append(GreenyellowTrail.from_json(json_dict=other_relation_dict))
+
         return Intersection(signalgroups=signalgroups, conflicts=conflicts, sync_starts=sync_starts,
-                            offsets=offsets, greenyellow_leads=greenyellow_leads)
+                            offsets=offsets, greenyellow_leads=greenyellow_leads, greenyellow_trails=greenyellow_trails)
 
     @staticmethod
     def from_swift_mobility_export(json_path) -> Intersection:
@@ -143,10 +153,17 @@ class Intersection:
 
         # greenyellow_leads
         if not isinstance(self.greenyellow_leads, list):
-            raise TypeError("greenyellow-lead should be a list of PreStart objects")
+            raise TypeError("greenyellow-lead should be a list of GreenyellowLead objects")
         for greenyellow_lead in self.greenyellow_leads:
             if not isinstance(greenyellow_lead, GreenyellowLead):
-                raise TypeError("greenyellow-lead should be a list of PreStart objects")
+                raise TypeError("greenyellow-lead should be a list of GreenyellowLead objects")
+
+        # greenyellow_trails
+        if not isinstance(self.greenyellow_trails, list):
+            raise TypeError("greenyellow-trail should be a list of GreenyellowTrail objects")
+        for greenyellow_trail in self.greenyellow_trails:
+            if not isinstance(greenyellow_trail, GreenyellowTrail):
+                raise TypeError("greenyellow-lead should be a list of GreenyellowTrail objects")
 
     def _validate_ids(self):
         """
@@ -180,15 +197,24 @@ class Intersection:
         if num_conflicts != num_unique_conflicts:
             raise ValueError("Conflicts may not contain duplicate {id1, id2} pairs.")
 
-        # validate that at most one relation is specified for each pair of signal groups
-        unique_relations = {frozenset([relation.from_id, relation.to_id])
-                            for relation in self.other_relations}
-        unique_relations = unique_relations.union(
-            {frozenset([conflict.id1, conflict.id2]) for conflict in self.conflicts})
-        num_relations = len(self.other_relations) + len(self.conflicts)
-        if num_relations != len(unique_relations):
-            raise ValueError("Not allowed to specify multiple relations "
-                             "(conflict, syncstart, offset, greenyellow_lead) for a single signal group pair.")
+        # check at most one other-relation specified between each two events.
+        other_relation_intervals_encountered = set()
+        for other_relation in self.other_relations:
+            if isinstance(other_relation, (Offset, SyncStart, GreenyellowLead)):
+                from_switch_str = "green"
+                to_switch_str = "green"
+            elif isinstance(other_relation, GreenyellowTrail):
+                from_switch_str = "red"
+                to_switch_str = "red"
+            else:
+                raise NotImplementedError("Unknown type of other-relations relation")
+
+            other_relation_interval = frozenset([other_relation.from_id, from_switch_str,
+                                                 other_relation.to_id, to_switch_str])
+            if other_relation_interval in other_relation_intervals_encountered:
+                raise ValueError(f"Multiple other-relations given between the switch to {from_switch_str}"
+                                 f"of SG {other_relation.from_id} to the switch to {to_switch_str} "
+                                 f"of SG {other_relation.to_id}. This is not allowed.")
 
     def _validate_setup_times(self):
         # validate setup times are not too negative

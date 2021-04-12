@@ -3,7 +3,9 @@ from typing import Optional, Union, List
 from swift_cloud_py.common.errors import SafetyViolation
 from swift_cloud_py.entities.intersection.intersection import Intersection
 from swift_cloud_py.entities.control_output.fixed_time_schedule import FixedTimeSchedule
-from swift_cloud_py.entities.intersection.sg_relations import SyncStart, Offset, GreenyellowLead
+from swift_cloud_py.entities.intersection.sg_relations import SyncStart, Offset, GreenyellowLead, GreenyellowTrail
+
+UNKNOWN_TYPE_OTHER_RELATION = "Unkown type of other_relation"
 
 
 def validate_other_sg_relations(intersection: Intersection, fts: FixedTimeSchedule, tolerance: float = 10**(-2)):
@@ -94,8 +96,8 @@ def get_shift_of_one_to_one_match(matches: List[List[bool]]) -> Optional[int]:
     return None
 
 
-def find_other_sg_relation_matches(other_relation: Union[SyncStart, Offset, GreenyellowLead], fts: FixedTimeSchedule,
-                                   index_from: int, tolerance: float = 10**(-2)) -> List[bool]:
+def find_other_sg_relation_matches(other_relation: Union[SyncStart, Offset, GreenyellowLead, GreenyellowTrail],
+                                   fts: FixedTimeSchedule, index_from: int, tolerance: float = 10**(-2)) -> List[bool]:
     """
     Find the greenyellow intervals of the signal group with id 'other_relation.to_id' that satisfies the specified
     inter signalgroup relation w.r.t. the greenyellow interval of signal group other_relation.from_id at index
@@ -111,9 +113,20 @@ def find_other_sg_relation_matches(other_relation: Union[SyncStart, Offset, Gree
     intervals_to = fts.get_greenyellow_intervals(signalgroup=other_relation.to_id)
 
     matches = [False] * len(intervals_to)
-    time_from = interval_from.start_greenyellow
+
+    if isinstance(other_relation, (SyncStart, Offset, GreenyellowLead)):
+        time_from = interval_from.start_greenyellow
+    elif isinstance(other_relation, GreenyellowTrail):
+        time_from = interval_from.end_greenyellow
+    else:
+        raise ValueError(UNKNOWN_TYPE_OTHER_RELATION)
     for index_to in range(len(intervals_to)):
-        time_to = intervals_to[index_to].start_greenyellow
+        if isinstance(other_relation, (SyncStart, Offset, GreenyellowLead)):
+            time_to = intervals_to[index_to].start_greenyellow
+        elif isinstance(other_relation, GreenyellowTrail):
+            time_to = intervals_to[index_to].end_greenyellow
+        else:
+            raise ValueError(UNKNOWN_TYPE_OTHER_RELATION)
 
         # determine the desired range of the time between time_from and time_to.
         if isinstance(other_relation, SyncStart):
@@ -122,11 +135,11 @@ def find_other_sg_relation_matches(other_relation: Union[SyncStart, Offset, Gree
         elif isinstance(other_relation, Offset):
             min_time = other_relation.seconds
             max_time = other_relation.seconds
-        elif isinstance(other_relation, GreenyellowLead):
+        elif isinstance(other_relation, (GreenyellowLead, GreenyellowTrail)):
             min_time = other_relation.min_seconds
             max_time = other_relation.max_seconds
         else:
-            raise NotImplementedError
+            raise ValueError(UNKNOWN_TYPE_OTHER_RELATION)
 
         # Determine the actual time between time_from and time_to. We correct for min_time potentially being negative.
         time_between = (time_to - time_from - (min_time - tolerance)) % fts.period + (min_time - tolerance)
