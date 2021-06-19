@@ -55,7 +55,7 @@ class FixedTimeSchedule:
             raise ValueError(SIGNALGROUP_WRONG_TYPE_MSG)
 
         if _id not in self._greenyellow_intervals:
-            raise ValueError("Unkown signalgroup")
+            raise ValueError("Unknown signalgroup")
         return self._greenyellow_intervals[_id]
 
     def get_greenyellow_interval(self, signalgroup: SignalGroup, k: int) -> GreenYellowInterval:
