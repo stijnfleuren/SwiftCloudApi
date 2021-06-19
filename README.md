@@ -151,9 +151,9 @@ You can print the fixed-time schedule in pretty format:
 print(fixed_time_schedule)
 ```
 
-### Optimizing multiple fixed-time schedules
-The api allows for optimizing the best k schedules. After you retrieved the best schedule via the api, you can obtain 
-second best schedule as follows:
+### Retrieving multiple fixed-time schedules
+The api allows for optimizing the best *k* schedules. After you retrieved the best schedule via the api, you can obtain 
+the second best schedule as follows:
 ```python
 fixed_time_schedule, phase_diagram, objective_value, warm_start_info = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=morning_rates, initial_queue_lengths=estimated_queue_lengths,
