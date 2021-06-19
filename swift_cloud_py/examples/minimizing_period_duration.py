@@ -37,7 +37,7 @@ def minimizing_period_duration(print_fixed_time_schedule: bool = False):
     logging.info(f"Loaded intersection and traffic situation from disk")
 
     logging.info(f"Minimizing period duration")
-    fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
+    fixed_time_schedule, phase_diagram, objective_value, _ = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=arrival_rates, min_period_duration=30, max_period_duration=180,
         objective=ObjectiveEnum.min_period)
 

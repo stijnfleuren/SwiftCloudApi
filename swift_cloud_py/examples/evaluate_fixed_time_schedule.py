@@ -36,9 +36,8 @@ def evaluate_fixed_time_schedule(print_fixed_time_schedule: bool = False):
     intersection = Intersection.from_json(intersection_dict=json_dict["intersection"])
     arrival_rates = ArrivalRates.from_json(arrival_rates_dict=json_dict["arrival_rates"])
     logging.info(f"Loaded intersection and traffic situation from disk")
-
     logging.info(f"Minimizing delay")
-    fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
+    fixed_time_schedule, phase_diagram, objective_value, _ = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=arrival_rates, min_period_duration=30, max_period_duration=180,
         objective=ObjectiveEnum.min_delay, horizon=2)
 

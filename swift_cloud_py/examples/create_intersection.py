@@ -54,7 +54,7 @@ def create_intersection_and_optimize():
 
     logging.info(f"Minimizing average experienced delay")
     # optimize fixed-time schedule
-    fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
+    fixed_time_schedule, phase_diagram, objective_value, _ = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=arrival_rates, objective=ObjectiveEnum.min_delay)
 
     logging.info(f"Average experienced delay {objective_value: .3f} seconds")

@@ -76,7 +76,7 @@ def maximize_intersection_capacity(print_fixed_time_schedule: bool = False):
     logging.info(f"Loaded intersection and traffic situation from disk")
 
     logging.info(f"Maximizing capacity of the intersection")
-    fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
+    fixed_time_schedule, phase_diagram, objective_value, _ = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=arrival_rates, min_period_duration=30, max_period_duration=180,
         objective=ObjectiveEnum.max_capacity)
 
@@ -92,7 +92,7 @@ def maximize_intersection_capacity(print_fixed_time_schedule: bool = False):
     logging.info(f"Expected maximum sustainable increase: {(objective_value/scaling_factor - 1) * 100:.2f}%")
 
     logging.info(f"Maximizing capacity of the intersection with scaled traffic")
-    fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
+    fixed_time_schedule, phase_diagram, objective_value, _ = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=arrival_rates, min_period_duration=30, max_period_duration=180,
         objective=ObjectiveEnum.max_capacity)
 

@@ -1,13 +1,13 @@
 import logging
 import os
-from typing import Tuple, Optional
+from typing import Tuple, Optional, List, Dict
 
 import requests
 from requests import Response
 
 from swift_cloud_py.authentication.authentication import authenticate
 from swift_cloud_py.common.errors import UnauthorizedException, BadRequestException, \
-    UnknownCloudException
+    UnknownCloudException, SafetyViolation
 from swift_cloud_py.authentication.check_internet_connection import ensure_has_internet
 from swift_cloud_py.entities.control_output.fixed_time_schedule import FixedTimeSchedule
 from swift_cloud_py.entities.control_output.phase_diagram import PhaseDiagram
@@ -45,7 +45,7 @@ def check_status_code(response: Response) -> None:
     elif response.status_code in [504]:
         raise TimeoutError
     elif response.status_code != 200:
-        raise UnknownCloudException(f"Unkown status code (={response.status_code}) returned")
+        raise UnknownCloudException(f"Unknown status code (={response.status_code}) returned")
 
 
 class SwiftMobilityCloudApi:
@@ -66,8 +66,10 @@ class SwiftMobilityCloudApi:
                           horizon: float = 2.0,
                           min_period_duration: float = 0.0, max_period_duration: float = 180,
                           objective: ObjectiveEnum = ObjectiveEnum.min_delay,
-                          initial_queue_lengths: Optional[QueueLengths] = None
-                          ) -> Tuple[FixedTimeSchedule, PhaseDiagram, float]:
+                          initial_queue_lengths: Optional[QueueLengths] = None,
+                          fixed_time_schedules_to_exclude: Optional[List[FixedTimeSchedule]] = None,
+                          warm_start_info: Optional[Dict] = None,
+                          ) -> Tuple[FixedTimeSchedule, PhaseDiagram, float, dict]:
         """
         Optimize a fixed-time schedule
         :param intersection: intersection for which to optimize the fts (contains signal groups, conflicts and more)
@@ -96,6 +98,12 @@ class SwiftMobilityCloudApi:
         :return: fixed-time schedule, associated phase diagram and the objective value
         (minimized delay, minimized period, or maximum percentual increase in traffic divided by 100, e.g. 1 means
         currently at the verge of stability)
+        :param fixed_time_schedules_to_exclude: the fixed-time schedules that we want to exclude; this can be used to find
+        the second best schedule by excluding the best one.
+        :param warm_start_info: each optimization returns some information
+        (usually in the format {"id": "some identification string"}); if you want to compute the second best schedule
+        (by excluding the best schedule), then you can also provide the warm_start_info returned with the best schedule;
+        this will significantly speedup computations when trying to find the second best one.
         """
         assert horizon >= 1, HORIZON_LB_EXCEEDED_MSG
         if initial_queue_lengths is None:
@@ -106,9 +114,17 @@ class SwiftMobilityCloudApi:
         check_all_arrival_rates_and_queue_lengths_specified(intersection=intersection, arrival_rates=arrival_rates,
                                                             initial_queue_lengths=initial_queue_lengths)
 
+        if fixed_time_schedules_to_exclude is not None:
+            for fixed_time_schedule in fixed_time_schedules_to_exclude:
+                try:
+                    validate_safety_restrictions(intersection=intersection, fixed_time_schedule=fixed_time_schedule)
+                except SafetyViolation as e:
+                    logging.error(f"One of the fixed-time schedules in fixed_time_schedules_to_exclude' does not"
+                                  f"satisfy all safety restrictions. The violation: {e}")
+                    raise SafetyViolation(e)
+
         endpoint = f"{CLOUD_API_URL}/fts-optimization"
         headers = SwiftMobilityCloudApi.get_authentication_header()
-
         # rest-api call
         try:
             # assume that the traffic that is initially present arrives during the horizon.
@@ -118,8 +134,12 @@ class SwiftMobilityCloudApi:
                 arrival_rates=corrected_arrival_rates.to_json(),
                 min_period_duration=min_period_duration,
                 max_period_duration=max_period_duration,
-                objective=objective.value
+                objective=objective.value,
             )
+            if fixed_time_schedules_to_exclude is not None:
+                json_dict["fts_to_exclude"] = [fts.to_json() for fts in fixed_time_schedules_to_exclude]
+            if warm_start_info is not None:
+                json_dict["warm_start_info"] = warm_start_info
             logging.debug(f"calling endpoint {endpoint}")
             r = requests.post(endpoint, json=json_dict, headers=headers)
             logging.debug(f"finished calling endpoint {endpoint}")
@@ -137,7 +157,9 @@ class SwiftMobilityCloudApi:
         validate_safety_restrictions(intersection=intersection, fixed_time_schedule=fixed_time_schedule)
         phase_diagram = PhaseDiagram.from_json(output["phase_diagram"])
 
-        return fixed_time_schedule, phase_diagram, objective_value
+        warm_start_info = output.get("warm_start_info", dict())
+
+        return fixed_time_schedule, phase_diagram, objective_value, warm_start_info
 
     @classmethod
     @ensure_has_internet
