@@ -137,7 +137,7 @@ intersection = Intersection.from_json(json_serializable)
 ### Optimizing fixed-time schedules
 Optimize a fixed-time schedule for an intersection and a certain arrival rates:
 ```python
-fixed_time_schedule, phase_diagram, objective_value = SwiftMobilityCloudApi.get_optimized_fts(
+fixed_time_schedule, phase_diagram, objective_value, warm_start_info = SwiftMobilityCloudApi.get_optimized_fts(
         intersection=intersection, arrival_rates=morning_rates, initial_queue_lengths=estimated_queue_lengths,
         objective=ObjectiveEnum.max_capacity)
 ```
@@ -149,6 +149,16 @@ We allow for several objectives:
 You can print the fixed-time schedule in pretty format:
 ```python
 print(fixed_time_schedule)
+```
+
+### Optimizing multiple fixed-time schedules
+The api allows for optimizing the best k schedules. After you retrieved the best schedule via the api, you can obtain 
+second best schedule as follows:
+```python
+fixed_time_schedule, phase_diagram, objective_value, warm_start_info = SwiftMobilityCloudApi.get_optimized_fts(
+        intersection=intersection, arrival_rates=morning_rates, initial_queue_lengths=estimated_queue_lengths,
+        objective=ObjectiveEnum.max_capacity, fixed_time_schedules_to_exclude=[best_fixed_time_schedule],
+            warm_start_info=warm_start_info)
 ```
 ### computing phase diagram
 When optimizing a fixed-time schedule, also the associated phase diagram is returned. However, you can also compute the phase diagram of any other fixed-time schedule:
