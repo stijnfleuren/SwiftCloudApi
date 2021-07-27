@@ -59,7 +59,7 @@ To install dependencies using pipenv, run (from the swift_cloud_py/ folder):
 To be able to connect to the Swift Mobility Cloud API you need credentials.
 To this end, set the following two environment variables:
  - smc_api_key: this is the Swift Mobility Cloud API KEY
- - smc_secret_key: this is the Swift Mobility Cloud API Secret Key.
+ - smc_api_secret: this is the Swift Mobility Cloud API Secret Key.
 
 If you do not yet have these credentials, you can send a mail to cloud_api@swiftmobility.eu.
 
