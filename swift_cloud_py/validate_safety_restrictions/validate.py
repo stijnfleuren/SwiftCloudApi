@@ -3,6 +3,7 @@ from swift_cloud_py.entities.intersection.intersection import Intersection
 from swift_cloud_py.validate_safety_restrictions.validate_bounds import validate_bounds
 from swift_cloud_py.validate_safety_restrictions.validate_completeness import validate_completeness
 from swift_cloud_py.validate_safety_restrictions.validate_conflicts import validate_conflicts
+from swift_cloud_py.validate_safety_restrictions.validate_fixed_orders import validate_fixed_orders
 from swift_cloud_py.validate_safety_restrictions.validate_other_sg_relations import validate_other_sg_relations
 
 
@@ -22,3 +23,4 @@ def validate_safety_restrictions(intersection: Intersection, fixed_time_schedule
     validate_conflicts(intersection=intersection, fts=fixed_time_schedule, tolerance=tolerance)
     validate_other_sg_relations(intersection=intersection, fts=fixed_time_schedule, tolerance=tolerance)
     validate_completeness(intersection=intersection, fts=fixed_time_schedule)
+    validate_fixed_orders(intersection=intersection, fts=fixed_time_schedule)
