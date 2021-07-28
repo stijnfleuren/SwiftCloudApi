@@ -3,6 +3,7 @@ from itertools import product
 from typing import Dict
 
 from swift_cloud_py.entities.intersection.intersection import Intersection
+from swift_cloud_py.entities.intersection.periodic_order import PeriodicOrder
 from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, GreenyellowLead, \
     GreenyellowTrail
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
@@ -15,14 +16,18 @@ class TestInputValidation(unittest.TestCase):
     def get_default_inputs() -> Dict:
         """ Function to get default (valid) inputs for Intersection() """
         signalgroups = [SignalGroup(id=f"sg{i+1}", traffic_lights=[TrafficLight(capacity=1800, lost_time=1)],
-                                    min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80) for i in range(5)]
-        conflicts = [Conflict(id1="sg1", id2="sg2", setup12=1, setup21=2)]
+                                    min_greenyellow=10, max_greenyellow=80, min_red=10, max_red=80) for i in range(6)]
+        conflicts = [Conflict(id1="sg1", id2="sg2", setup12=1, setup21=2),
+                     Conflict(id1="sg1", id2="sg6", setup12=1, setup21=2),
+                     Conflict(id1="sg2", id2="sg6", setup12=1, setup21=2)]
         sync_starts = [SyncStart(from_id="sg1", to_id="sg3")]
         offsets = [Offset(from_id="sg1", to_id="sg4", seconds=10)]
+        periodic_orders = [PeriodicOrder(order=["sg1", "sg2", "sg6"])]
         greenyellow_leads = [GreenyellowLead(from_id="sg1", to_id="sg5", min_seconds=1, max_seconds=10)]
         greenyellow_trails = [GreenyellowTrail(from_id="sg5", to_id="sg1", min_seconds=2, max_seconds=8)]
         return dict(signalgroups=signalgroups, conflicts=conflicts, sync_starts=sync_starts,
-                    offsets=offsets, greenyellow_leads=greenyellow_leads, greenyellow_trails=greenyellow_trails)
+                    offsets=offsets, greenyellow_leads=greenyellow_leads, greenyellow_trails=greenyellow_trails,
+                    periodic_orders=periodic_orders)
 
     def test_successful_validation(self) -> None:
         """ Test initializing Intersection object with correct input """
@@ -138,6 +143,26 @@ class TestInputValidation(unittest.TestCase):
                     Intersection(**input_dict)
 
             # THEN an error should be raised
+
+    def test_unknown_ids_in_periodic_order(self):
+        # GIVEN
+        input_dict = TestInputValidation.get_default_inputs()
+
+        # WHEN
+        input_dict["periodic_orders"] = [PeriodicOrder(["sg1", "sg2", "unknown_id"])]
+
+        with self.assertRaises(ValueError):
+            Intersection(**input_dict)
+
+    def test_subsequent_non_conflicting_ids_in_periodic_order(self):
+        # GIVEN
+        input_dict = TestInputValidation.get_default_inputs()
+
+        # WHEN
+        input_dict["periodic_orders"] = [PeriodicOrder(["sg1", "sg2", "sg3"])]
+
+        with self.assertRaises(ValueError):
+            Intersection(**input_dict)
 
 
 class TestGettingSignalGroup(unittest.TestCase):

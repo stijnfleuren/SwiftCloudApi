@@ -2,6 +2,7 @@ from __future__ import annotations  # allows using intersection-typing inside in
 import json
 from typing import List, Union, Optional, Dict
 
+from swift_cloud_py.entities.intersection.periodic_order import PeriodicOrder
 from swift_cloud_py.entities.intersection.sg_relations import Conflict, SyncStart, Offset, GreenyellowLead, \
     GreenyellowTrail
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
@@ -11,7 +12,8 @@ class Intersection:
     def __init__(self, signalgroups: List[SignalGroup], conflicts: List[Conflict],
                  sync_starts: Optional[List[SyncStart]] = None, offsets: Optional[List[Offset]] = None,
                  greenyellow_leads: Optional[List[GreenyellowLead]] = None,
-                 greenyellow_trails: Optional[List[GreenyellowTrail]] = None) -> None:
+                 greenyellow_trails: Optional[List[GreenyellowTrail]] = None,
+                 periodic_orders: Optional[List[PeriodicOrder]] = None) -> None:
         """
         intersection object containing information depending on intersection geometry and traffic light control
         strategy (e.g., sync starts etc.);
@@ -25,6 +27,9 @@ class Intersection:
         :param offsets: list of offsets desired for this intersection.
         :param greenyellow_leads: list of greenyellow_leads desired for this intersection.
         :param greenyellow_trails: list of greenyellow_trails desired for this intersection.
+        :param periodic_orders: list of periodic orders in which the signalgroups must receive their
+        greenyellow interval; if some signal groups may have multiple greenyellow intervals, then one of these
+        intervals should adhere to this fixed periodic order.
         """
         self.signalgroups = signalgroups
         self.conflicts = conflicts
@@ -32,6 +37,7 @@ class Intersection:
         self.offsets = offsets if offsets else []
         self.greenyellow_leads = greenyellow_leads if greenyellow_leads else []
         self.greenyellow_trails = greenyellow_trails if greenyellow_trails else []
+        self.periodic_orders = periodic_orders if periodic_orders else []
         self._validate()
         self._id_to_signalgroup = {signalgroup.id: signalgroup for signalgroup in signalgroups}
 
@@ -48,7 +54,8 @@ class Intersection:
         """get dictionary structure that can be stored as json with json.dumps()"""
         json_dict = dict(signalgroups=[signalgroup.to_json() for signalgroup in self.signalgroups],
                          conflicts=[conflict.to_json() for conflict in self.conflicts],
-                         other_relations=[other_relation.to_json() for other_relation in self.other_relations])
+                         other_relations=[other_relation.to_json() for other_relation in self.other_relations],
+                         periodic_orders=[periodic_order.to_json() for periodic_order in self.periodic_orders])
         return json_dict
 
     def get_signalgroup(self, signalgroup_id: str):
@@ -67,6 +74,9 @@ class Intersection:
         # load signal groups
         signalgroups = [SignalGroup.from_json(signalgroup_dict=signalgroup_dict)
                         for signalgroup_dict in intersection_dict["signalgroups"]]
+
+        periodic_orders = [PeriodicOrder.from_json(order_dict=order_dict)
+                           for order_dict in intersection_dict["periodic_orders"]]
 
         # load conflicts
         conflicts = [Conflict.from_json(conflict_dict=conflict_dict)
@@ -93,7 +103,8 @@ class Intersection:
                 greenyellow_trails.append(GreenyellowTrail.from_json(json_dict=other_relation_dict))
 
         return Intersection(signalgroups=signalgroups, conflicts=conflicts, sync_starts=sync_starts,
-                            offsets=offsets, greenyellow_leads=greenyellow_leads, greenyellow_trails=greenyellow_trails)
+                            offsets=offsets, greenyellow_leads=greenyellow_leads, greenyellow_trails=greenyellow_trails,
+                            periodic_orders=periodic_orders)
 
     @staticmethod
     def from_swift_mobility_export(json_path) -> Intersection:
@@ -118,6 +129,7 @@ class Intersection:
         self._validate_ids()
         self._validate_relations_per_pair()
         self._validate_setup_times()
+        self._validate_periodic_orders()
 
     def _validate_types(self):
         """
@@ -233,3 +245,20 @@ class Intersection:
                 raise ValueError(f"setup21 plus min_greenyellow of signal group sg2 must be strictly positive, "
                                  f"which is not satisfied for signal groups sg1='{conflict.id1}' "
                                  f"and sg2='{conflict.id2}'.")
+
+    def _validate_periodic_orders(self):
+        signalgroup_ids = {signalgroup.id for signalgroup in self.signalgroups}
+        conflict_ids = {frozenset([conflict.id1, conflict.id2]) for conflict in self.conflicts}
+        for periodic_order in self.periodic_orders:
+            if not isinstance(periodic_order, PeriodicOrder):
+                raise TypeError("periodic_order should be an instance of PeriodicOrder")
+            prev_signalgroup_id = periodic_order.order[-1]
+            for signalgroup_id in periodic_order:
+                if signalgroup_id not in signalgroup_ids:
+                    raise ValueError(f"Order {periodic_order} uses an unknown signalgroup id {signalgroup_id}")
+                if frozenset([prev_signalgroup_id, signalgroup_id]) not in conflict_ids:
+                    raise ValueError(f"Each two subsequent signalgroups in a periodic order should be conflicting. "
+                                     f"This does not hold for {prev_signalgroup_id} and {signalgroup_id} in "
+                                     f"order {periodic_order}")
+
+                prev_signalgroup_id = signalgroup_id
