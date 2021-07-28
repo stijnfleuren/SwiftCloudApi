@@ -1,11 +1,13 @@
 import unittest
 from collections import defaultdict
+from itertools import combinations
 from typing import List
 
 from swift_cloud_py.common.errors import SafetyViolation
 from swift_cloud_py.entities.control_output.fixed_time_schedule import FixedTimeSchedule
 from swift_cloud_py.entities.intersection.intersection import Intersection
 from swift_cloud_py.entities.intersection.periodic_order import PeriodicOrder
+from swift_cloud_py.entities.intersection.sg_relations import Conflict
 from swift_cloud_py.entities.intersection.signalgroup import SignalGroup
 from swift_cloud_py.entities.intersection.traffic_light import TrafficLight
 from swift_cloud_py.validate_safety_restrictions.validate_fixed_orders import validate_fixed_orders
@@ -148,7 +150,13 @@ class TestValidatingCompleteness(unittest.TestCase):
                                                max_red=50, min_nr=1, max_nr=3))
 
     def _expect_valid_fixed_order(self, expect_valid: bool = True, shift: float = 0) -> None:
-        intersection = Intersection(signalgroups=self._signal_groups, conflicts=[],
+        # assume all signalgroups are conflicting for this test
+        conflicts = []
+        for signalgroup1, signalgroup2 in combinations(self._signal_groups, 2):
+            if signalgroup1 == signalgroup2:
+                continue
+            conflicts.append(Conflict(id1=signalgroup1.id, id2=signalgroup2.id, setup12=1, setup21=1))
+        intersection = Intersection(signalgroups=self._signal_groups, conflicts=conflicts,
                                     periodic_orders=self._fixed_orders)
 
         fts_dict = {"period": self._period,
