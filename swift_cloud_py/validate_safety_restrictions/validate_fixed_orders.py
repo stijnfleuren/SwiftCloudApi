@@ -6,12 +6,20 @@ from swift_cloud_py.entities.intersection.periodic_order import PeriodicOrder
 EPSILON = 10**(-6)  # small value used in checks to correct for numeric inaccuracies
 
 
-def validate_fixed_orders(intersection: Intersection, fts: FixedTimeSchedule):
+def validate_fixed_orders(intersection: Intersection, fts: FixedTimeSchedule) -> None:
+    """ Validate that the the signalgroups indeed receive their greenyellow intervals
+    in the requested periodic orders
+    :return: -
+    :raises SafetyException: if the requested order is not satisfied"""
     for periodic_order in intersection.periodic_orders:
         validate_fixed_order(intersection=intersection, fts=fts, periodic_order=periodic_order)
 
 
-def validate_fixed_order(intersection: Intersection, fts: FixedTimeSchedule, periodic_order: PeriodicOrder):
+def validate_fixed_order(intersection: Intersection, fts: FixedTimeSchedule, periodic_order: PeriodicOrder) -> None:
+    """ Validate that the the signalgroups indeed receive their greenyellow intervals
+    in the requested periodic order (for only the periodic order that is given as argument).
+    :return: -
+    :raises SafetyException: if the requested order is not satisfied"""
     first_signalgroup = intersection.get_signalgroup(signalgroup_id=periodic_order.order[0])
     first_interval_start = fts.get_greenyellow_interval(first_signalgroup, k=0).start_greenyellow
     prev_switch = 0
