@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="swift-cloud-api",
-    version="0.13.0",
+    version="0.14.0",
     author="S.T.G. Fleuren",
     author_email="stijn.fleuren@swiftmobility.eu",
     description="Swift Mobility Cloud API Interface",
