@@ -21,8 +21,9 @@ def evaluate_fixed_time_schedule(print_fixed_time_schedule: bool = False):
     - smc_api_secret: the secret access key of your swift mobility cloud api account
     If you do not have such an account yet, please contact cloud_api@swiftmobility.eu.
 
-    In this example, we load an intersection from disk (export of Swift Mobility Desktop). This functionality is tested
-    with Swift Mobility Desktop 0.7.0.alpha.
+    In this example, we load an intersection from disk (export of Swift Mobility Desktop). You can download this
+    file (example_smd_export.json) from
+    https://github.com/stijnfleuren/SwiftCloudApi/tree/master/swift_cloud_py/examples
     """
     logging.info(f"Running example '{os.path.basename(__file__)}'")
     # absolute path to .json file that has been exported from swift mobility desktop
