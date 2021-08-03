@@ -75,8 +75,11 @@ class Intersection:
         signalgroups = [SignalGroup.from_json(signalgroup_dict=signalgroup_dict)
                         for signalgroup_dict in intersection_dict["signalgroups"]]
 
-        periodic_orders = [PeriodicOrder.from_json(order_dict=order_dict)
-                           for order_dict in intersection_dict["periodic_orders"]]
+        if "periodic_orders" in intersection_dict:
+            periodic_orders = [PeriodicOrder.from_json(order_dict=order_dict)
+                               for order_dict in intersection_dict["periodic_orders"]]
+        else:
+            periodic_orders = []
 
         # load conflicts
         conflicts = [Conflict.from_json(conflict_dict=conflict_dict)
